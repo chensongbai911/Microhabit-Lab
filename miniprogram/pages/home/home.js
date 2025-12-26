@@ -362,12 +362,12 @@ Page({
   handleCardTap (e) {
     // 获取点击目标的习惯ID
     const habitId = e.currentTarget.dataset.id;
-    
+
     // 如果点击的是编辑/删除按钮,不关闭菜单(让按钮自己的bindtap处理)
     if (e.target.className && e.target.className.includes('action-btn')) {
       return;
     }
-    
+
     // 否则关闭菜单
     if (this.data.editingId) {
       this.setData({

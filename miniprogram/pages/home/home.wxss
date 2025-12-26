@@ -267,6 +267,8 @@
   align-items: center;
   gap: 16rpx;
   animation: slideDown 0.3s ease;
+  position: relative;
+  overflow: hidden;
 }
 
 .completed-icon {
@@ -276,6 +278,92 @@
 .completed-text {
   font-size: 28rpx;
   font-weight: 500;
+}
+
+/* 粒子特效容器 */
+.confetti-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.confetti {
+  position: absolute;
+  width: 8rpx;
+  height: 8rpx;
+  background: white;
+  border-radius: 50%;
+  opacity: 0.9;
+  animation: confetti-fall 2s ease-in forwards;
+}
+
+/* 为每个粒子设置不同的动画延迟和初始位置 */
+.confetti:nth-child(1) {
+  left: 10%;
+  animation-delay: 0s;
+  background: #FFD700;
+}
+
+.confetti:nth-child(2) {
+  left: 15%;
+  animation-delay: 0.1s;
+  background: #FF6B9D;
+}
+
+.confetti:nth-child(3) {
+  left: 30%;
+  animation-delay: 0.2s;
+  background: #4ECDC4;
+}
+
+.confetti:nth-child(4) {
+  left: 45%;
+  animation-delay: 0.3s;
+  background: #FFD700;
+}
+
+.confetti:nth-child(5) {
+  left: 60%;
+  animation-delay: 0.1s;
+  background: #FF6B9D;
+}
+
+.confetti:nth-child(6) {
+  left: 75%;
+  animation-delay: 0.2s;
+  background: #4ECDC4;
+}
+
+.confetti:nth-child(7) {
+  left: 85%;
+  animation-delay: 0.15s;
+  background: #FFD700;
+}
+
+.confetti:nth-child(8) {
+  left: 90%;
+  animation-delay: 0.25s;
+  background: #FF6B9D;
+}
+
+/* 粒子下落动画 */
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(-40rpx) rotate(0deg) scale(1);
+    opacity: 0.9;
+  }
+  50% {
+    transform: translateY(20rpx) rotate(180deg) scale(0.8);
+    opacity: 0.7;
+  }
+  100% {
+    transform: translateY(80rpx) rotate(360deg) scale(0.5);
+    opacity: 0;
+  }
 }
 
 @keyframes slideDown {
