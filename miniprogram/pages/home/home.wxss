@@ -73,20 +73,33 @@
 /* 习惯列表 */
 .habits-container {
   padding: 0 32rpx;
+  position: relative;
+}
+
+.habit-card-wrapper {
+  position: relative;
+  overflow: visible;
+  margin-bottom: 20rpx;
 }
 
 .habit-card {
   background: white;
   border-radius: 24rpx;
   padding: 24rpx;
-  margin-bottom: 20rpx;
   box-shadow: 0 2rpx 16rpx rgba(15, 23, 42, 0.06);
-  transition: all 0.3s;
+  transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  position: relative;
+  z-index: 10;
 }
 
-.habit-card:active {
+.habit-card:active:not(.editing) {
   transform: scale(0.98);
   box-shadow: 0 4rpx 20rpx rgba(15, 23, 42, 0.1);
+}
+
+/* 卡片编辑状态 - 显示菜单时左移 */
+.habit-card.editing {
+  transform: translateX(-160rpx);
 }
 
 .habit-main {
@@ -431,4 +444,51 @@
 .fab image {
   width: 48rpx;
   height: 48rpx;
+}
+
+/* 习惯卡片滑动菜单 */
+.habit-actions {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  gap: 12rpx;
+  z-index: 9;
+  width: 160rpx;
+  height: 100%;
+}
+
+.action-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16rpx;
+  font-size: 24rpx;
+  font-weight: 600;
+  color: white;
+  transition: all 0.2s;
+}
+
+.action-btn:active {
+  transform: scale(0.95);
+}
+
+.action-edit {
+  background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);
+}
+
+.action-delete {
+  background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+}
+
+/* 长按菜单背景遮罩 */
+.menu-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 8;
 }

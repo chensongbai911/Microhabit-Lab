@@ -25,6 +25,10 @@
   <view class="completed-banner" wx:if="{{showCompletedAnimation}}">
     <view class="completed-icon">🎉</view>
     <view class="completed-text">太棒了！今天的微习惯全部完成!</view>
+    <!-- 粒子特效 -->
+    <view class="confetti-container">
+      <view class="confetti" wx:for="{{[1,2,3,4,5,6,7,8]}}"></view>
+    </view>
   </view>
 
   <!-- 加载中 -->
@@ -43,38 +47,49 @@
 
   <!-- 习惯列表 -->
   <view class="habits-container" wx:if="{{habits.length > 0 && !loading && !loadError}}">
-    <view class="habit-card" wx:for="{{habits}}" wx:key="_id">
-      <view class="habit-main">
-        <!-- 左侧:完成图标 -->
-        <view class="check-icon" wx:if="{{item.is_completed}}">
-          <image src="/assets/icons/check.png" mode="aspectFit" />
-        </view>
-        <view class="check-placeholder" wx:else></view>
+    <view class="habit-card-wrapper" wx:for="{{habits}}" wx:key="_id">
+      <view class="habit-card {{editingId === item._id ? 'editing' : ''}}"
+            bindtap="handleCardTap"
+            bindlongpress="showHabitMenu"
+            data-id="{{item._id}}"
+            data-name="{{item.name}}">
+        <view class="habit-main">
+          <!-- 左侧:完成图标 -->
+          <view class="check-icon" wx:if="{{item.is_completed}}">
+            <image src="/assets/icons/check.png" mode="aspectFit" />
+          </view>
+          <view class="check-placeholder" wx:else></view>
 
-        <!-- 中间:习惯信息 -->
-        <view class="habit-info">
-          <view class="habit-header">
-            <view class="habit-name {{item.is_completed ? 'completed' : ''}}">{{item.name}}</view>
-            <view class="habit-period" wx:if="{{item.cycle_days}}">Day {{item.current_day}}/{{item.cycle_days}}</view>
+          <!-- 中间:习惯信息 -->
+          <view class="habit-info">
+            <view class="habit-header">
+              <view class="habit-name {{item.is_completed ? 'completed' : ''}}">{{item.name}}</view>
+              <view class="habit-period" wx:if="{{item.cycle_days}}">Day {{item.current_day}}/{{item.cycle_days}}</view>
+            </view>
+            <view class="habit-meta">
+              <view class="trigger-tag tag-primary">{{item.trigger}}</view>
+              <view class="progress-text">{{item.today_times}}/{{item.target_times_per_day}}</view>
+            </view>
+            <!-- 进度条 -->
+            <view class="habit-progress-bar">
+              <view class="habit-progress-fill" style="width: {{(item.today_times / item.target_times_per_day) * 100}}%;"></view>
+            </view>
           </view>
-          <view class="habit-meta">
-            <view class="trigger-tag tag-primary">{{item.trigger}}</view>
-            <view class="progress-text">{{item.today_times}}/{{item.target_times_per_day}}</view>
-          </view>
-          <!-- 进度条 -->
-          <view class="habit-progress-bar">
-            <view class="habit-progress-fill" style="width: {{(item.today_times / item.target_times_per_day) * 100}}%;"></view>
-          </view>
-        </view>
 
-        <!-- 右侧:打卡按钮 -->
-        <view class="check-in-btn {{item.is_completed ? 'disabled' : ''}} {{checkingInId === item._id ? 'loading' : ''}}"
-              bindtap="handleCheckIn"
-              data-id="{{item._id}}"
-              data-completed="{{item.is_completed}}">
-          <view wx:if="{{checkingInId === item._id}}" class="btn-spinner"></view>
-          <image wx:else src="/assets/icons/{{item.is_completed ? 'check-circle-filled.png' : 'check-circle.png'}}" mode="aspectFit" />
+          <!-- 右侧:打卡按钮 -->
+          <view class="check-in-btn {{item.is_completed ? 'disabled' : ''}} {{checkingInId === item._id ? 'loading' : ''}}"
+                bindtap="handleCheckIn"
+                data-id="{{item._id}}"
+                data-completed="{{item.is_completed}}">
+            <view wx:if="{{checkingInId === item._id}}" class="btn-spinner"></view>
+            <image wx:else src="/assets/icons/{{item.is_completed ? 'check-circle-filled.png' : 'check-circle.png'}}" mode="aspectFit" />
+          </view>
         </view>
+      </view>
+      <!-- 滑动删除菜单 -->
+      <view class="habit-actions" wx:if="{{editingId === item._id}}">
+        <view class="action-btn action-edit" bindtap="editHabit" data-id="{{item._id}}">编辑</view>
+        <view class="action-btn action-delete" bindtap="deleteHabit" data-id="{{item._id}}">删除</view>
       </view>
     </view>
   </view>
@@ -104,8 +119,12 @@
     </view>
   </view>
 
+  <!-- 菜单覆盖层 - 用于关闭菜单 -->
+  <view class="menu-overlay" wx:if="{{editingId}}" bindtap="handleCardTap" data-id="{{editingId}}"></view>
+
   <!-- 底部新建按钮 -->
   <view class="fab" bindtap="goToCreate">
     <image src="/assets/icons/plus.png" mode="aspectFit" />
   </view>
 </view>
+

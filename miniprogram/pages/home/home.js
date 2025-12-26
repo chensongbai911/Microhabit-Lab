@@ -16,7 +16,9 @@ Page({
     allCompleted: false,
     showCompletedAnimation: false,
     loadError: false,
-    completionRate: 0
+    completionRate: 0,
+    editingId: null,
+    showMenuId: null
   },
 
   onLoad () {
@@ -341,5 +343,113 @@ Page({
    */
   retryLoadTodayHabits () {
     this.loadTodayHabits();
+  },
+
+  /**
+   * 显示习惯长按菜单
+   */
+  showHabitMenu (e) {
+    const habitId = e.currentTarget.dataset.id;
+    this.setData({
+      editingId: habitId,
+      showMenuId: habitId
+    });
+  },
+
+  /**
+   * 卡片点击 - 关闭菜单
+   */
+  handleCardTap (e) {
+    // 获取点击目标的习惯ID
+    const habitId = e.currentTarget.dataset.id;
+    
+    // 如果点击的是编辑/删除按钮,不关闭菜单(让按钮自己的bindtap处理)
+    if (e.target.className && e.target.className.includes('action-btn')) {
+      return;
+    }
+    
+    // 否则关闭菜单
+    if (this.data.editingId) {
+      this.setData({
+        editingId: null,
+        showMenuId: null
+      });
+    }
+  },
+
+  /**
+   * 编辑习惯
+   */
+  editHabit (e) {
+    const habitId = e.currentTarget.dataset.id;
+    this.setData({
+      editingId: null,
+      showMenuId: null
+    });
+    wx.navigateTo({
+      url: `/pages/habit-detail/habit-detail?id=${habitId}&mode=edit`
+    });
+  },
+
+  /**
+   * 删除习惯
+   */
+  deleteHabit (e) {
+    const habitId = e.currentTarget.dataset.id;
+    const habitName = this.data.habits.find(h => h._id === habitId)?.name || '该习惯';
+
+    wx.showModal({
+      title: '确认删除',
+      content: `确定要删除"${habitName}"吗?`,
+      confirmText: '删除',
+      cancelText: '取消',
+      success: (res) => {
+        if (res.confirm) {
+          this.performDelete(habitId);
+        } else {
+          this.setData({
+            editingId: null,
+            showMenuId: null
+          });
+        }
+      }
+    });
+  },
+
+  /**
+   * 执行删除操作
+   */
+  performDelete (habitId) {
+    wx.showLoading({ title: '删除中...' });
+
+    wx.cloud.callFunction({
+      name: 'updateHabitStatus',
+      data: {
+        habit_id: habitId,
+        status: 'deleted'
+      },
+      success: (res) => {
+        wx.hideLoading();
+        wx.showToast({
+          title: '已删除',
+          icon: 'success',
+          duration: 2000
+        });
+        this.setData({
+          editingId: null,
+          showMenuId: null
+        });
+        this.loadTodayHabits();
+      },
+      fail: (err) => {
+        wx.hideLoading();
+        wx.showToast({
+          title: '删除失败,请重试',
+          icon: 'error',
+          duration: 2000
+        });
+        console.error('删除习惯失败:', err);
+      }
+    });
   }
 });
