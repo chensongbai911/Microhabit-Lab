@@ -55,8 +55,10 @@
 
     <!-- 加载失败 -->
     <view class="error-state" wx:if="{{templateError}}">
-      <view class="error-text">加载模板失败，请检查网络后重试</view>
-      <button class="btn-retry" bindtap="retryLoadTemplates">重新加载</button>
+      <view class="error-icon">😴</view>
+      <view class="error-title">暂时无法加载</view>
+      <view class="error-text">请检查网络连接后重试</view>
+      <button class="btn btn-primary" bindtap="retryLoadTemplates">重新加载</button>
     </view>
 
     <!-- 空列表 -->
@@ -112,8 +114,10 @@
 
     <!-- 加载失败 -->
     <view class="error-state" wx:if="{{myHabitsError}}">
-      <view class="error-text">加载习惯列表失败，请检查网络后重试</view>
-      <button class="btn-retry" bindtap="retryLoadMyHabits">重新加载</button>
+      <view class="error-icon">😴</view>
+      <view class="error-title">暂时无法加载</view>
+      <view class="error-text">请检查网络连接后重试</view>
+      <button class="btn btn-primary" bindtap="retryLoadMyHabits">重新加载</button>
     </view>
 
     <!-- 空列表 -->
