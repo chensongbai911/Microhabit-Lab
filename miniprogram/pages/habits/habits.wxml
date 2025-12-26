@@ -44,7 +44,12 @@
         <view class="template-name">{{item.name}}</view>
         <view class="template-trigger">触发: {{item.default_trigger}}</view>
         <view class="template-desc">{{item.description}}</view>
-        <button class="btn-add" bindtap="addTemplate" data-id="{{item._id}}">+ 添加</button>
+        <view class="btn-add-wrapper">
+          <button class="btn-add" bindtap="addTemplate" data-id="{{item._id}}">
+            <text class="btn-add-icon">+</text>
+            <text class="btn-add-text">添加</text>
+          </button>
+        </view>
       </view>
     </view>
 
@@ -56,7 +61,9 @@
 
     <!-- 空列表 -->
     <view class="empty-state" wx:if="{{!loadingTemplates && !templateError && filteredTemplates.length === 0}}">
-      <view class="empty-text">没有匹配的模板，换个关键词试试</view>
+      <view class="empty-icon">📭</view>
+      <view class="empty-title">没有找到匹配的习惯</view>
+      <view class="empty-text">{{searchQuery ? '换个关键词试试' : '从分类中选择或搜索习惯'}}</view>
     </view>
   </view>
 
@@ -111,7 +118,12 @@
 
     <!-- 空列表 -->
     <view class="empty-state" wx:if="{{!loadingMyHabits && !myHabitsError && myHabits.length === 0}}">
-      <view class="empty-text">你还没有创建任何习惯</view>
+      <view class="empty-icon">🎯</view>
+      <view class="empty-title">还没有养成习惯</view>
+      <view class="empty-text">从习惯库中选择一个习惯，开启你的微习惯养成之旅</view>
+      <view class="empty-action">
+        <button class="empty-action-btn" bindtap="switchTab" data-index="0">去选择习惯</button>
+      </view>
     </view>
   </view>
 </view>

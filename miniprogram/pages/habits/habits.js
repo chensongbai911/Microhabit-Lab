@@ -44,7 +44,7 @@ Page({
    * 切换Tab
    */
   switchTab (e) {
-    const index = e.currentTarget.dataset.index;
+    const index = typeof e === 'number' ? e : e.currentTarget.dataset.index;
     this.setData({ currentTab: index });
 
     if (index === 1) {
