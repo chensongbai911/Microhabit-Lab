@@ -2,7 +2,7 @@
 	padding: 32rpx;
 	display: flex;
 	flex-direction: column;
-	gap: 24rpx;
+	gap: 20rpx;
 }
 
 .notice {
@@ -18,9 +18,9 @@
 .status-card {
 	background: linear-gradient(135deg, #4CB8A5 0%, #4C9BFF 100%);
 	border-radius: 24rpx;
-	padding: 32rpx;
+	padding: 36rpx 32rpx;
 	color: white;
-	box-shadow: 0 4rpx 20rpx rgba(76, 184, 165, 0.3);
+	box-shadow: 0 6rpx 24rpx rgba(76, 184, 165, 0.25);
 }
 
 .status-title {
@@ -36,9 +36,10 @@
 }
 
 .price {
-	font-size: 48rpx;
+	font-size: 44rpx;
 	font-weight: 700;
-	margin-bottom: 16rpx;
+	margin-bottom: 20rpx;
+	line-height: 1;
 }
 
 .pay-btn {
@@ -68,7 +69,8 @@
 	gap: 12rpx;
 	font-size: 28rpx;
 	color: var(--text-secondary);
-	margin-bottom: 12rpx;
+	margin-bottom: 10rpx;
+	line-height: 1.4;
 }
 
 .dot {

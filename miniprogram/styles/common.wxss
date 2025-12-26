@@ -113,10 +113,12 @@
   align-items: center;
   justify-content: center;
   border-radius: var(--radius-full);
-  padding: 20rpx 48rpx;
+  padding: 18rpx 48rpx;
   font-size: var(--font-md);
   font-weight: var(--font-medium);
-  transition: all 0.3s;
+  transition: all 0.3s ease;
+  min-height: 64rpx;
+  line-height: 1;
 }
 
 .btn-primary {
