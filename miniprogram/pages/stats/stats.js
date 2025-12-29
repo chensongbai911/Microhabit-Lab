@@ -3,26 +3,23 @@ const permission = require('../../utils/permission.js');
 
 Page({
   data: {
+    // Day 6 - 结论优先
+    weeklyRate: 0,          // 本周完成率
+    bestHabit: '微习惯',    // 最好的习惯
+    improved: false,        // 是否改进
+    improvementPercent: 0,  // 改进百分比
+    advice: '',             // 建议文案
     stats: {
+      totalHabits: 0,
       inProgress: 0,
-      finished: 0,
+      completed: 0,
       maxStreak: 0
-    },
-    weeklyTrend: {
-      avgRate: 0,
-      data: []
-    },
-    monthlyTrend: {
-      avgRate: 0,
-      data: []
     },
     memberInfo: {
       isMember: false,
       title: '解锁微习惯会员',
       desc: '无限习惯 · 完整数据 · 详细报告'
-    },
-    showTrendModal: false,
-    selectedTrendData: {}
+    }
   },
 
   onShow () {
@@ -36,21 +33,24 @@ Page({
         name: 'getStats'
       });
 
-      if (res.result.code === 0) {
+      if (res.result?.code === 0 || res.result?.success === true) {
+        const data = res.result.data;
         this.setData({
-          stats: {
-            inProgress: res.result.data.inProgress,
-            finished: res.result.data.finished,
-            maxStreak: res.result.data.maxStreak
-          },
-          weeklyTrend: res.result.data.weeklyTrend || this.data.weeklyTrend,
-          monthlyTrend: res.result.data.monthlyTrend || this.data.monthlyTrend
+          weeklyRate: data.weeklyRate || 0,
+          bestHabit: data.bestHabit || '微习惯',
+          improved: data.improved || false,
+          improvementPercent: data.improvementPercent || 0,
+          advice: data.advice || '开始你的微习惯之旅吧！',
+          stats: data.stats || this.data.stats
         });
+      } else {
+        console.error('getStats 返回错误:', res.result);
       }
     } catch (error) {
       console.error('加载统计数据失败:', error);
     }
   },
+
 
   updateMemberInfo () {
     const isMember = permission.isMember();
@@ -67,43 +67,5 @@ Page({
     wx.navigateTo({
       url: '/pages/membership/membership'
     });
-  },
-
-  formatDateLabel (dateStr) {
-    // 返回 MM/DD 以便展示
-    const parts = dateStr.split('-');
-    return `${parts[1]}/${parts[2]}`;
-  },
-
-  /**
-   * 点击趋势条查看详情
-   */
-  showTrendDetail (e) {
-    const { date, rate, completed, active } = e.currentTarget.dataset;
-    this.setData({
-      showTrendModal: true,
-      selectedTrendData: {
-        date,
-        rate: parseInt(rate),
-        completed: parseInt(completed),
-        active: parseInt(active),
-        formattedDate: this.formatDetailDate(date)
-      }
-    });
-  },
-
-  /**
-   * 关闭趋势详情弹窗
-   */
-  closeTrendModal () {
-    this.setData({ showTrendModal: false });
-  },
-
-  /**
-   * 格式化详情日期显示
-   */
-  formatDetailDate (dateStr) {
-    const [year, month, day] = dateStr.split('-');
-    return `${year}年${month}月${day}日`;
   }
 });

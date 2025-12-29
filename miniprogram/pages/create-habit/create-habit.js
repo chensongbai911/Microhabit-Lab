@@ -18,6 +18,7 @@ Page({
     nameLength: 0,
     nameFeedback: '',
     expectedCompletionRate: 85, // 完成率预测(默认1次/天)
+    completionRateText: '大多数人都能做到', // P1-1: 温暖的完成率文案
     frequencyImpactTips: '每天1次最容易坚持',
     // 影响分析字段
     impactAnalysis: {
@@ -286,9 +287,20 @@ Page({
         value === 3 ? '需要足够自律' :
           '难度较大,容易放弃';
 
+    // P1-1: 转换为温暖的文案
+    let completionRateText = '';
+    if (expectedRate >= 80) {
+      completionRateText = '大多数人都能做到';
+    } else if (expectedRate >= 60) {
+      completionRateText = '有一定挑战，但可以试试';
+    } else {
+      completionRateText = '建议从更简单的开始';
+    }
+
     this.setData({
       'formData.target_times_per_day': value,
       expectedCompletionRate: expectedRate,
+      completionRateText: completionRateText,
       frequencyImpactTips: impactTips
     }, () => {
       // 分析频次变化的影响
@@ -394,9 +406,21 @@ Page({
       if (res.result.code === 0) {
         util.showToast('新习惯已加入今日列表', 'success');
 
-        // 延迟返回,让用户看到成功提示
+        // 延迟后引导至【首卡激励】页面，完成第一次打卡
         setTimeout(() => {
-          wx.navigateBack();
+          const newHabitId = (res.result?.data?.user_habit_id) || (res.result?.data?.habit_id) || '';
+          if (newHabitId) {
+            try {
+              wx.setStorageSync('pendingFirstCheckinHabitId', newHabitId);
+              wx.setStorageSync('first_checkin_pending', true);
+            } catch (e) { }
+            wx.navigateTo({
+              url: `/pages/onboarding/first-checkin/first-checkin?habitId=${newHabitId}`
+            });
+          } else {
+            // 回退作为兜底
+            wx.navigateBack();
+          }
         }, 1500);
       } else if (res.result.code === 1001) {
         // 超出习惯数量限制

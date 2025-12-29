@@ -1,60 +1,47 @@
-<!-- 数据&我页 -->
+<!-- 数据&我页 - Day 6 结论优先 -->
 <view class="container">
   <view class="page-container">
-    <!-- 统计卡片 -->
+    <!-- 主结论卡片 -->
+    <view class="conclusion-card">
+      <!-- 大标题：本周完成率 -->
+      <view class="conclusion-header">
+        <view class="rate-emoji">{{improved ? '📈' : '📊'}}</view>
+        <view class="rate-main">
+          <view class="rate-value">{{weeklyRate}}%</view>
+          <view class="rate-label">本周完成率</view>
+        </view>
+      </view>
+
+      <!-- 最好的习惯 -->
+      <view class="best-habit-section">
+        <view class="section-label">最好的习惯</view>
+        <view class="best-habit-name">{{bestHabit}}</view>
+      </view>
+
+      <!-- 改进指标 -->
+      <view class="improvement-section" wx:if="{{improved}}">
+        <view class="improvement-tag">💪 比上周进步 {{improvementPercent}}%</view>
+      </view>
+
+      <!-- 建议文案 -->
+      <view class="advice-box">
+        <view class="advice-text">{{advice}}</view>
+      </view>
+    </view>
+
+    <!-- 统计数据概览 -->
     <view class="stats-cards">
       <view class="stat-card">
-        <view class="stat-value">{{stats.inProgress}}</view>
-        <view class="stat-label">进行中</view>
-      </view>
-      <view class="stat-card">
-        <view class="stat-value">{{stats.finished}}</view>
-        <view class="stat-label">完成实验</view>
+        <view class="stat-value">{{stats.totalHabits}}</view>
+        <view class="stat-label">总习惯数</view>
       </view>
       <view class="stat-card">
         <view class="stat-value">{{stats.maxStreak}}</view>
         <view class="stat-label">最长坚持</view>
       </view>
-    </view>
-
-    <!-- 趋势卡片 -->
-    <view class="trend-card">
-      <view class="trend-header">
-        <view>
-          <view class="trend-title">近7天完成率</view>
-          <view class="trend-sub">平均 {{weeklyTrend.avgRate}}%</view>
-        </view>
-      </view>
-      <view class="trend-bars">
-        <block wx:for="{{weeklyTrend.data}}" wx:key="date">
-          <view class="bar-row clickable" bindtap="showTrendDetail" data-date="{{item.date}}" data-rate="{{item.rate}}" data-completed="{{item.completed}}" data-active="{{item.active}}">
-            <text class="bar-label">{{formatDateLabel(item.date)}}</text>
-            <view class="bar-track">
-              <view class="bar-fill" style="width: {{item.rate}}%;"></view>
-            </view>
-            <text class="bar-value">{{item.rate}}%</text>
-          </view>
-        </block>
-      </view>
-    </view>
-
-    <view class="trend-card">
-      <view class="trend-header">
-        <view>
-          <view class="trend-title">近30天完成率</view>
-          <view class="trend-sub">平均 {{monthlyTrend.avgRate}}%</view>
-        </view>
-      </view>
-      <view class="trend-bars small">
-        <block wx:for="{{monthlyTrend.data}}" wx:key="date">
-          <view class="bar-row clickable" bindtap="showTrendDetail" data-date="{{item.date}}" data-rate="{{item.rate}}" data-completed="{{item.completed}}" data-active="{{item.active}}">
-            <text class="bar-label">{{formatDateLabel(item.date)}}</text>
-            <view class="bar-track">
-              <view class="bar-fill" style="width: {{item.rate}}%;"></view>
-            </view>
-            <text class="bar-value">{{item.rate}}%</text>
-          </view>
-        </block>
+      <view class="stat-card">
+        <view class="stat-value">{{stats.inProgress}}</view>
+        <view class="stat-label">进行中</view>
       </view>
     </view>
 
@@ -74,33 +61,6 @@
       <view class="setting-item">
         <text>关于我们</text>
         <text class="arrow">›</text>
-      </view>
-    </view>
-
-    <!-- 趋势详情弹窗 -->
-    <view class="modal-mask" wx:if="{{showTrendModal}}" catchtap="closeTrendModal">
-      <view class="trend-modal" catchtap>
-        <view class="modal-date">{{selectedTrendData.formattedDate}}</view>
-        <view class="trend-detail">
-          <view class="detail-item">
-            <view class="detail-label">完成习惯数</view>
-            <view class="detail-value">{{selectedTrendData.completed}}</view>
-          </view>
-          <view class="detail-item">
-            <view class="detail-label">活跃习惯数</view>
-            <view class="detail-value">{{selectedTrendData.active}}</view>
-          </view>
-          <view class="detail-item">
-            <view class="detail-label">完成率</view>
-            <view class="detail-value">{{selectedTrendData.rate}}%</view>
-          </view>
-        </view>
-        <view class="progress-bar-detail">
-          <view class="bar-track-detail">
-            <view class="bar-fill-detail" style="width: {{selectedTrendData.rate}}%;"></view>
-          </view>
-        </view>
-        <button class="btn btn-primary" bindtap="closeTrendModal">关闭</button>
       </view>
     </view>
   </view>

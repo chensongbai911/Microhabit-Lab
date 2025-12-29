@@ -20,17 +20,20 @@ Page({
     myHabitsRaw: [],  // 原始数据
     myHabitsFilter: 'all',
     myHabitsSortBy: 'created',
-    myHabitsSortOrder: 'desc'
+    myHabitsSortOrder: 'desc',
+    inProgressCount: 0  // P2: 进行中的习惯数量
   },
 
   onLoad () {
     this.loadTemplates();
+    this.loadInProgressCount();  // P2: 加载进行中习惯数量
   },
 
   onShow () {
     if (this.data.currentTab === 1) {
       this.loadMyHabits();
     }
+    this.loadInProgressCount();  // P2: 刷新进行中习惯数量
   },
 
   onPullDownRefresh () {
@@ -133,10 +136,37 @@ Page({
       });
 
       if (res.result.code === 0) {
-        const habits = res.result.data.map(habit => ({
-          ...habit,
-          progress: cycleUtil.getCycleProgress(habit)
-        }));
+        const habits = res.result.data.map(habit => {
+          const progress = cycleUtil.getCycleProgress(habit);
+
+          // P0-2: 添加温暖的进度文案
+          let warmProgressText = '';
+          const current = progress.current || 0;
+          if (current <= 2) {
+            warmProgressText = '刚开始';
+          } else if (current <= 10) {
+            warmProgressText = '在路上';
+          } else {
+            warmProgressText = '已经熟悉了';
+          }
+
+          // P0-2: 优化状态显示文案
+          let statusText = '';
+          if (habit.status === 'in_progress') {
+            statusText = '正在陪伴';
+          } else if (habit.status === 'finished') {
+            statusText = '暂时放下';
+          } else {
+            statusText = habit.status;
+          }
+
+          return {
+            ...habit,
+            progress: progress,
+            warmProgressText: warmProgressText,
+            statusText: statusText
+          };
+        });
 
         this.setData({
           myHabits: habits,
@@ -186,8 +216,27 @@ Page({
       } else if (myHabitsSortBy === 'progress') {
         aVal = a.progress.percentage || 0;
         bVal = b.progress.percentage || 0;
+      } else if (myHabitsSortBy === 'easiest') {
+        // P1-2: 按今天最轻排序
+        // 规则: 1. 今日未完成 > 已完成  2. 目标次数少的 > 多的
+        const aCompleted = a.today_completed || false;
+        const bCompleted = b.today_completed || false;
+        const aTarget = a.target_times_per_day || 1;
+        const bTarget = b.target_times_per_day || 1;
+
+        // 优先显示未完成的
+        if (aCompleted !== bCompleted) {
+          return aCompleted ? 1 : -1;
+        }
+
+        // 其次按目标次数从少到多
+        return aTarget - bTarget;
       }
-      if (myHabitsSortOrder === 'desc') {
+
+      // 应用排序方向（easiest 模式固定升序）
+      if (myHabitsSortBy === 'easiest') {
+        return 0;  // 已在上面处理
+      } else if (myHabitsSortOrder === 'desc') {
         return bVal - aVal;
       } else {
         return aVal - bVal;
@@ -227,5 +276,95 @@ Page({
     wx.navigateTo({
       url: `/pages/habit-detail/habit-detail?id=${id}`
     });
+  },
+
+  /**
+   * P1-1: 暂停习惯
+   */
+  pauseHabit (e) {
+    const habitId = e.currentTarget.dataset.id;
+    const habit = this.data.myHabits.find(h => h._id === habitId);
+
+    wx.showModal({
+      title: '暂停一阵',
+      content: `暂停"${habit.name}"\n\n暂停不会清零，也不算失败\n随时可以在详情页恢复`,
+      confirmText: '暂停',
+      cancelText: '取消',
+      confirmColor: '#10b981',
+      success: (res) => {
+        if (res.confirm) {
+          this.performPause(habitId);
+        }
+      }
+    });
+  },
+
+  /**
+   * 执行暂停操作
+   */
+  async performPause (habitId) {
+    wx.showLoading({ title: '暂停中...', mask: true });
+
+    try {
+      const res = await wx.cloud.callFunction({
+        name: 'updateHabitStatus',
+        data: {
+          user_habit_id: habitId,
+          action: 'pause'
+        }
+      });
+
+      wx.hideLoading();
+
+      if (res.result.code === 0) {
+        wx.showToast({
+          title: '已暂停',
+          icon: 'success',
+          duration: 1500
+        });
+
+        // 刷新列表
+        setTimeout(() => {
+          this.loadMyHabits();
+        }, 500);
+      } else {
+        wx.showToast({
+          title: res.result.message || '暂停失败',
+          icon: 'none'
+        });
+      }
+    } catch (error) {
+      wx.hideLoading();
+      console.error('暂停习惯失败:', error);
+      wx.showToast({
+        title: '操作失败，请重试',
+        icon: 'none'
+      });
+    }
+  },
+
+  /**
+   * 阻止事件冒泡
+   */
+  stopPropagation () {
+    // 阻止点击按钮时触发goToDetail
+  },
+
+  /**
+   * P2: 加载进行中习惯数量（用于软限制提示）
+   */
+  async loadInProgressCount () {
+    try {
+      const res = await wx.cloud.callFunction({
+        name: 'getMyHabits'
+      });
+
+      if (res.result.code === 0) {
+        const inProgressCount = res.result.data.filter(h => h.status === 'in_progress').length;
+        this.setData({ inProgressCount });
+      }
+    } catch (error) {
+      console.error('加载进行中习惯数量失败:', error);
+    }
   }
 });

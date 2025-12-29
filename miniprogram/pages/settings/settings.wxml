@@ -104,6 +104,34 @@
       <view class="preview-time">{{reminderTime1}} & {{reminderTime2}}</view>
     </view>
 
+    <!-- 动效设置 -->
+    <view class="section-header">
+      <view class="section-title">动效设置</view>
+      <view class="section-desc">首卡反馈时显示礼花动画</view>
+    </view>
+
+    <view class="setting-card">
+      <view class="setting-row">
+        <view class="setting-label">
+          <text class="label-text">启用动效</text>
+          <text class="label-hint">首卡反馈时显示粒子礼花</text>
+        </view>
+        <switch checked="{{effectsEnabled}}" bindchange="toggleEffects" color="#FF6B6B" />
+      </view>
+
+      <view class="divider"></view>
+
+      <view class="setting-row" wx:if="{{effectsEnabled}}">
+        <view class="setting-label">
+          <text class="label-text">动效强度</text>
+          <text class="label-hint">低/中/高 - 影响粒子数量与流畅度</text>
+        </view>
+        <picker value="{{effectsIntensity - 1}}" range="{{['低', '中', '高']}}" bindchange="setEffectsIntensity">
+          <view class="intensity-picker">{{['低', '中', '高'][effectsIntensity - 1]}}</view>
+        </picker>
+      </view>
+    </view>
+
     <!-- Phase 3.3-3.4 管理功能 -->
     <view class="section-header">
       <view class="section-title">管理</view>

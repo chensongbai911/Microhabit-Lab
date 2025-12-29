@@ -41,6 +41,45 @@
   background: white;
 }
 
+/* P2: 习惯数量软限制提示 */
+.habit-limit-hint {
+  margin: 16rpx 32rpx 0 32rpx;
+  padding: 20rpx 24rpx;
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border: 1rpx solid #fcd34d;
+  border-radius: 16rpx;
+  display: flex;
+  align-items: flex-start;
+  gap: 12rpx;
+}
+
+.habit-limit-hint .hint-icon {
+  font-size: 32rpx;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.habit-limit-hint .hint-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+
+.habit-limit-hint .hint-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #92400e;
+  line-height: 1.3;
+}
+
+.habit-limit-hint .hint-text {
+  font-size: 24rpx;
+  color: #78350f;
+  line-height: 1.5;
+  opacity: 0.9;
+}
+
 .search-input {
   width: 100%;
   height: 72rpx;
@@ -72,6 +111,25 @@
 .category-item.active {
   background: var(--primary-color);
   color: white;
+}
+
+/* P0-1: 分类提示样式 */
+.category-hint {
+  padding: 0 32rpx 16rpx 32rpx;
+  background: white;
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.category-hint .hint-icon {
+  font-size: 24rpx;
+}
+
+.category-hint .hint-text {
+  font-size: 24rpx;
+  color: var(--text-tertiary);
+  line-height: 1.5;
 }
 
 /* 模板列表 */
@@ -119,6 +177,39 @@
   color: var(--text-secondary);
   line-height: 1.6;
   margin-bottom: 24rpx;
+}
+
+/* P0-1: 新增的优化描述区域 */
+.template-desc-new {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+  margin-bottom: 12rpx;
+  padding: 16rpx;
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border-radius: 12rpx;
+  border: 1rpx solid #bbf7d0;
+}
+
+.template-desc-new .desc-time {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #16a34a;
+}
+
+.template-desc-new .desc-note {
+  font-size: 24rpx;
+  color: #15803d;
+  opacity: 0.85;
+}
+
+/* 原始描述弱化显示 */
+.template-desc-original {
+  font-size: 24rpx;
+  color: var(--text-tertiary);
+  line-height: 1.5;
+  margin-bottom: 16rpx;
+  opacity: 0.7;
 }
 
 .btn-add-wrapper {
@@ -220,6 +311,18 @@
   color: var(--text-tertiary);
 }
 
+/* P0-2: 温暖进度文案样式 */
+.habit-progress-text-warm {
+  font-size: 26rpx;
+  color: #10b981;
+  font-weight: 500;
+  padding: 4rpx 12rpx;
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border-radius: 8rpx;
+  display: inline-block;
+  align-self: flex-start;
+}
+
 .habit-progress-bar {
   width: 100%;
   height: 12rpx;
@@ -232,6 +335,31 @@
   height: 100%;
   background: linear-gradient(135deg, #4CB8A5 0%, #4C9BFF 100%);
   border-radius: 12rpx;
+}
+
+/* P1-1: 习惯操作按钮区域 */
+.habit-actions {
+  margin-top: 16rpx;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-pause {
+  padding: 12rpx 24rpx !important;
+  height: auto !important;
+  line-height: 1 !important;
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  color: #92400e;
+  border: 1rpx solid #fcd34d;
+  border-radius: 12rpx;
+  font-size: 24rpx;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.btn-pause:active {
+  transform: scale(0.95);
+  opacity: 0.8;
 }
 
 /* 加载骨架屏 */

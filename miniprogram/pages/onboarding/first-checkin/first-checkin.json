@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "首卡激励",
+  "enablePullDownRefresh": false,
+  "usingComponents": {
+    "feedback-modal": "../../../components/feedback-modal/index"
+  }
+}

@@ -248,6 +248,14 @@
   box-shadow: 0 2rpx 8rpx rgba(102, 126, 234, 0.3);
 }
 
+/* P0-2: 温暖文案样式 */
+.habit-period.warm {
+  background: linear-gradient(135deg, #10B981 0%, #34D399 100%);
+  box-shadow: 0 2rpx 8rpx rgba(16, 185, 129, 0.3);
+  font-weight: 600;
+  font-size: 24rpx;
+}
+
 .habit-meta {
   display: flex;
   align-items: center;
@@ -371,6 +379,37 @@
   font-size: 30rpx;
   font-weight: 600;
   text-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
+}
+
+/* P0-1: 打卡情绪反馈浮层 */
+.emotion-feedback-toast {
+  position: fixed;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.8);
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(10rpx);
+  -webkit-backdrop-filter: blur(10rpx);
+  padding: 32rpx 48rpx;
+  border-radius: 24rpx;
+  z-index: 9999;
+  opacity: 0;
+  transition: all 0.3s ease;
+  pointer-events: none;
+  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.3);
+}
+
+.emotion-feedback-toast.show {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.emotion-feedback-text {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #FFFFFF;
+  text-align: center;
+  white-space: nowrap;
 }
 
 /* 粒子特效容器 */

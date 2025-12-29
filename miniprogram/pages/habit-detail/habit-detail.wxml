@@ -93,8 +93,9 @@
         <view class="modal-completion">
           <view class="completion-item">
             <view class="completion-label">完成情况</view>
+            <!-- P2: 移除负面文案，使用更中性的表述 -->
             <view class="completion-value">
-              {{selectedDateData.completed ? '✓ 已完成' : '✗ 未完成'}}
+              {{selectedDateData.completed ? '✓ 已完成' : '当日休息'}}
             </view>
           </view>
           <view class="completion-item">

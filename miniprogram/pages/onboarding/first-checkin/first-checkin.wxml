@@ -1,0 +1,17 @@
+<view class="container">
+  <view class="hero">
+    <text class="title">恭喜你迈出第一步！</text>
+    <text class="subtitle">立即打一次卡，开启7天旅程</text>
+  </view>
+
+  <view class="cta">
+    <button class="checkin-btn" bindtap="onFirstCheckin">立即打一次卡</button>
+  </view>
+
+  <view class="tips">
+    <text>这次打卡只需30秒，我们会给你庆祝反馈🎆</text>
+  </view>
+
+  <!-- 反馈弹层组件（动态Tier） -->
+  <feedback-modal id="feedback" tier="{{tier}}" visible="{{feedbackVisible}}" bind:dismiss="onDismissFeedback" />
+</view>

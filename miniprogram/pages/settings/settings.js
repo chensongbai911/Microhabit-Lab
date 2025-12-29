@@ -1,4 +1,6 @@
 // pages/settings/settings.js
+const resourceCache = require('../../utils/resourceCache.js');
+
 Page({
   data: {
     reminderEnabled: false,
@@ -8,12 +10,29 @@ Page({
       daily: false,
       completion: false,
       milestone: false
-    }
+    },
+    effectsEnabled: true,
+    effectsIntensity: 2
   },
 
   onShow () {
+    // 初始化效果资源
+    resourceCache.initEffectsResources();
+
     this.loadSettings();
     this.checkSubscribeStatus();
+    this.loadEffectsSettings();
+  },
+
+  /**
+   * 加载动效设置
+   */
+  loadEffectsSettings () {
+    try {
+      const effectsEnabled = wx.getStorageSync('effects_enabled') !== false;
+      const effectsIntensity = wx.getStorageSync('effects_intensity') || 2;
+      this.setData({ effectsEnabled, effectsIntensity });
+    } catch (e) { }
   },
 
   /**
@@ -185,6 +204,33 @@ Page({
       showCancel: false,
       confirmText: '知道了'
     });
+  },
+
+  /**
+   * 切换动效开关
+   */
+  toggleEffects (e) {
+    const enabled = e.detail.value;
+    try {
+      wx.setStorageSync('effects_enabled', enabled);
+      this.setData({ effectsEnabled: enabled });
+      resourceCache.setEffectsEnabled(enabled);
+      wx.showToast({ title: enabled ? '已开启动效' : '已关闭动效', icon: 'success' });
+    } catch (e) { }
+  },
+
+  /**
+   * 调整动效强度
+   */
+  setEffectsIntensity (e) {
+    const intensity = parseInt(e.detail.value) + 1; // picker value是0-2，转为1-3
+    try {
+      wx.setStorageSync('effects_intensity', intensity);
+      this.setData({ effectsIntensity: intensity });
+      resourceCache.setEffectsIntensity(intensity);
+      const label = ['低', '中', '高'][intensity - 1] || '中';
+      wx.showToast({ title: `动效强度: ${label}`, icon: 'success' });
+    } catch (e) { }
   },
 
   /**

@@ -5,20 +5,38 @@ const constants = require('../../utils/constants.js');
 
 Page({
   data: {
-    habits: [],
+    // 核心数据：只保留必须项
+    habits: [],              // 今日习惯列表
+    completedCount: 0,       // 完成数（后端直接返回）
+    totalCount: 0,           // 总数（后端直接返回）
+    progress: 0,             // 完成率百分比（后端直接返回）
+
+    // P1-1: 顶部被肯定文案
+    topStatusText: '',       // 顶部状态文案
+
+    // 页面状态
     dateDisplay: '',
     encouragementText: '',
     loading: false,
-    showEndModal: false,
-    endedHabit: null,
-    endedHabits: [],
+    loadError: false,
     checkingInId: null,
+
+    // UI 控制
     allCompleted: false,
     showCompletedAnimation: false,
-    loadError: false,
-    completionRate: 0,
     editingId: null,
-    showMenuId: null
+    showMenuId: null,
+
+    // 打卡情绪反馈
+    showEmotionFeedback: false,
+    emotionFeedbackText: '',
+
+    // 可选：推荐和已结束
+    recommendedHabits: [],
+    showRecommendation: false,
+    endedHabits: [],
+    showEndModal: false,
+    endedHabit: null
   },
 
   onLoad () {
@@ -26,6 +44,7 @@ Page({
   },
 
   onShow () {
+    this.checkFirstCheckinShortcut();
     this.loadTodayHabits();
   },
 
@@ -71,7 +90,8 @@ Page({
   },
 
   /**
-   * 加载今日习惯
+   * 加载今日习惯 - 优化版（Day 3）
+   * 简化数据处理，相信后端返回的计算结果
    */
   async loadTodayHabits () {
     this.setData({ loading: true, loadError: false });
@@ -82,43 +102,54 @@ Page({
       });
 
       if (res.result.code === 0) {
-        const { habits, ended_habits } = res.result.data;
-        const habitsData = habits || [];
+        const data = res.result.data || {};
+        const { habits = [], ended_habits = [], completedCount = 0, totalCount = 0, progress = 0 } = data;
 
-        // 检查是否全部完成
-        const allCompleted = habitsData.length > 0 && habitsData.every(h => h.is_completed);
+        // P0-2: 为每个习惯添加温暖文案（替代 Day X/Y）
+        const processedHabits = habits.map(habit => {
+          const daysPassed = habit.progressCurrent || 1;
+          let warmText = '';
 
-        // 计算完成率
-        let completionRate = 0;
-        if (habitsData.length > 0) {
-          const completedCount = habitsData.filter(h => h.is_completed).length;
-          completionRate = Math.round((completedCount / habitsData.length) * 100);
-        }
+          if (daysPassed === 1 || daysPassed === 2) {
+            warmText = '今天 · 已开始';
+          } else if (daysPassed >= 3 && daysPassed <= 6) {
+            warmText = '慢慢来';
+          } else if (daysPassed >= 7) {
+            warmText = '正在形成';
+          }
 
-        // 为每个习惯计算当前周期天数
-        const today = dateUtil.getToday();
-        const habitsWithPeriod = habitsData.map(habit => {
-          const daysDiff = dateUtil.getDaysBetween(habit.start_date, today);
-          const currentDay = (daysDiff % habit.cycle_days) + 1;
           return {
             ...habit,
-            current_day: currentDay
+            warmProgressText: warmText
           };
         });
 
+        // 检查是否全部完成
+        const allCompleted = totalCount > 0 && completedCount === totalCount;
+
+        // P1-1: 生成被肯定的顶部文案
+        let topStatusText = '';
+        if (totalCount === 0) {
+          topStatusText = '今天，从小开始';
+        } else if (allCompleted) {
+          topStatusText = '今天已经对自己交代了';
+        } else if (completedCount > 0) {
+          topStatusText = `今天，也完成得不错`;
+        } else {
+          topStatusText = '今天，准备好了吗';
+        }
+
         this.setData({
-          habits: habitsWithPeriod,
-          endedHabits: ended_habits || [],
+          habits: processedHabits,
+          endedHabits: ended_habits,
+          completedCount: completedCount,
+          totalCount: totalCount,
+          progress: progress,
+          topStatusText: topStatusText,
           loading: false,
           allCompleted: allCompleted,
-          showCompletedAnimation: allCompleted,
-          completionRate: completionRate
+          showCompletedAnimation: allCompleted
         });
-
-        // 如果有结束的习惯,显示弹窗
-        if (ended_habits && ended_habits.length > 0) {
-          this.showEndedHabitModal(ended_habits[0]);
-        }
 
         // 全部完成动画 3 秒后消失
         if (allCompleted) {
@@ -127,8 +158,21 @@ Page({
           }, 3000);
         }
 
-        // Phase 3新增: 加载推荐习惯
-        this.loadRecommendedHabits(habitsWithPeriod);
+        // 首进策略：无习惯时自动拉起模板创建后直达首卡页（仅触发一次）
+        try {
+          const autoStarted = wx.getStorageSync('first_run_autostart_done');
+          if (!autoStarted && habits.length === 0) {
+            this.autoStartWithTemplate();
+          }
+        } catch (e) { }
+
+        // 如果有结束的习惯，显示弹窗
+        if (ended_habits && ended_habits.length > 0) {
+          this.showEndedHabitModal(ended_habits[0]);
+        }
+
+        // 加载推荐习惯
+        this.loadRecommendedHabits(habits);
       } else {
         throw new Error(res.result.message);
       }
@@ -139,7 +183,39 @@ Page({
   },
 
   /**
-   * 打卡
+   * 自动以模板创建一个习惯并直达首卡页
+   */
+  async autoStartWithTemplate () {
+    try {
+      // 从模板库随机选择一个模板
+      const db = wx.cloud.database();
+      const { data: templates } = await db.collection('habit_templates').where({ is_active: true }).limit(10).get();
+      const tpl = (templates && templates.length > 0) ? templates[Math.floor(Math.random() * templates.length)] : null;
+      const name = tpl?.name || '喝一口水';
+      const trigger = tpl?.default_trigger || '刷牙后';
+
+      const res = await wx.cloud.callFunction({
+        name: 'createHabit',
+        data: { name, trigger, target_times_per_day: 1 }
+      });
+
+      if (res.result && res.result.code === 0) {
+        const newHabitId = (res.result?.data?.user_habit_id) || (res.result?.data?.habit_id) || '';
+        if (newHabitId) {
+          wx.setStorageSync('first_run_autostart_done', true);
+          wx.setStorageSync('pendingFirstCheckinHabitId', newHabitId);
+          wx.setStorageSync('first_checkin_pending', true);
+          wx.navigateTo({ url: `/pages/onboarding/first-checkin/first-checkin?habitId=${newHabitId}` });
+        }
+      }
+    } catch (e) {
+      console.error('autoStartWithTemplate failed:', e);
+    }
+  },
+
+  /**
+   * 打卡 - 优化版（Day 3）
+   * 乐观更新 → 异步调用云函数 → 打卡成功跳首卡页
    */
   async handleCheckIn (e) {
     const { id, completed } = e.currentTarget.dataset;
@@ -148,7 +224,7 @@ Page({
       return;
     }
 
-    // 防止重复打卡
+    // 防止重复点击
     if (this.data.checkingInId === id) {
       return;
     }
@@ -156,8 +232,8 @@ Page({
     this.setData({ checkingInId: id });
 
     try {
-      // 乐观更新UI
-      const habits = this.data.habits.map(habit => {
+      // 乐观更新 UI（立即标记为完成）
+      const updatedHabits = this.data.habits.map(habit => {
         if (habit._id === id) {
           return {
             ...habit,
@@ -168,70 +244,59 @@ Page({
         return habit;
       });
 
-      // 计算新的完成率
-      const completedCount = habits.filter(h => h.is_completed).length;
-      const completionRate = Math.round((completedCount / habits.length) * 100);
+      // 本地记录打卡习惯ID，供首卡页使用
+      wx.setStorageSync('lastCheckinHabitId', id);
 
-      this.setData({ habits, completionRate });
+      // 立即更新 UI（200ms 内反馈）
+      this.setData({ habits: updatedHabits });
 
-      // 调用云函数
-      const res = await wx.cloud.callFunction({
+      // P0-1: 添加情绪反馈（震动 + 浮层文案）
+      wx.vibrateShort({ type: 'light' });
+      const emotionText = util.randomItem(constants.checkInEmotionTexts);
+      this.setData({
+        showEmotionFeedback: true,
+        emotionFeedbackText: emotionText
+      });
+      // 0.8s 后自动隐藏
+      setTimeout(() => {
+        this.setData({ showEmotionFeedback: false });
+      }, 800);
+
+      // 异步调用云函数（不等待立即返回）
+      wx.cloud.callFunction({
         name: 'logHabit',
-        data: { user_habit_id: id }
-      });
-
-      if (res.result.code === 0) {
-        // 显示成功提示
-        const successText = util.randomItem(constants.checkInSuccessTexts);
-        util.showToast(successText, 'success');
-
-        // 检查是否全部完成
-        const allCompleted = habits.every(h => h.is_completed);
-        if (allCompleted) {
-          this.setData({
-            allCompleted: true,
-            showCompletedAnimation: true
-          });
-          setTimeout(() => {
-            this.setData({ showCompletedAnimation: false });
-          }, 3000);
-        }
-      } else if (res.result.code === 1002) {
-        // 已达到今日目标
-        util.showToast(res.result.message);
-      } else {
-        // 失败,回滚 UI,给出重试提示
-        this.loadTodayHabits();
-        wx.showModal({
-          title: '打卡失败',
-          content: res.result.message || '网络错误，请重试',
-          showCancel: true,
-          confirmText: '重试',
-          cancelText: '取消',
-          success: (result) => {
-            if (result.confirm) {
-              this.handleCheckIn(e);
-            }
+        data: {
+          user_habit_id: id,
+          isFirstCheckin: false,
+          checkType: 'home_checkin'
+        },
+        success: (res) => {
+          // 后端返回成功，跳首卡页显示反馈
+          if (res.result && res.result.code === 0) {
+            const data = res.result.data || {};
+            wx.navigateTo({
+              url: `/pages/onboarding/first-checkin/first-checkin?habitId=${id}&streak=${data.streak || 0}&feedbackTier=${data.feedbackTier || 'regular'}`
+            });
+          } else if (res.result && res.result.code === 1002) {
+            // 已完成目标
+            util.showToast('今日已完成目标次数');
+          } else {
+            // 其他错误
+            util.showToast(res.result?.message || '打卡失败');
+            // 回滚 UI
+            this.loadTodayHabits();
           }
-        });
-      }
+        },
+        fail: (err) => {
+          // 网络失败时，本地记录仍有效
+          console.error('logHabit 网络错误:', err);
+          util.showToast('网络异常，数据已保存');
+          // 不回滚 UI，因为本地记录已生效
+        }
+      });
     } catch (error) {
-      console.error('打卡失败:', error);
-      // 回滚 UI
-      this.loadTodayHabits();
-      wx.showModal({
-        title: '网络错误',
-        content: '打卡失败，请检查网络后重试',
-        showCancel: true,
-        confirmText: '重试',
-        cancelText: '取消',
-        success: (result) => {
-          if (result.confirm) {
-            this.handleCheckIn(e);
-          }
-        }
-      });
-    } finally {
+      console.error('打卡异常:', error);
+      util.showToast('操作异常');
       this.setData({ checkingInId: null });
     }
   },
@@ -410,6 +475,22 @@ Page({
    */
   retryLoadTodayHabits () {
     this.loadTodayHabits();
+  },
+
+  /**
+   * 首次体验优化：从首页直接跳转首卡页（若存在待引导的首卡）
+   */
+  checkFirstCheckinShortcut () {
+    try {
+      const pending = wx.getStorageSync('first_checkin_pending');
+      const done = wx.getStorageSync('first_checkin_done');
+      const habitId = wx.getStorageSync('pendingFirstCheckinHabitId');
+      if (pending && !done && habitId) {
+        wx.navigateTo({
+          url: `/pages/onboarding/first-checkin/first-checkin?habitId=${habitId}`
+        });
+      }
+    } catch (e) { }
   },
 
   /**

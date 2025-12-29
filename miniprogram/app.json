@@ -9,7 +9,8 @@
     "pages/deleted-habits/deleted-habits",
     "pages/data-export/data-export",
     "pages/membership/membership",
-    "pages/settings/settings"
+    "pages/settings/settings",
+    "pages/onboarding/first-checkin/first-checkin"
   ],
   "window": {
     "backgroundTextStyle": "light",

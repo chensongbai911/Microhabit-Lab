@@ -63,6 +63,9 @@ exports.main = async (event, context) => {
           max_streak: completion.max_streak,
           progress: completion.progress
         },
+        // 标准化字段: streakDays/isRecovery
+        streakDays: completion.current_streak_today || 0,
+        isRecovery: (completion.current_streak_today === 0 && completion.completed_days > 0),
         advice
       }
     };
@@ -103,6 +106,9 @@ function calculateCompletion (logs, startDate, totalDays, targetTimes) {
   let completed = 0;
   let currentStreak = 0;
   let maxStreak = 0;
+  let currentStreakToday = 0;
+
+  const todayStr = new Date().toISOString().split('T')[0];
 
   dates.forEach(date => {
     if (completionMap[date]) {
@@ -111,6 +117,9 @@ function calculateCompletion (logs, startDate, totalDays, targetTimes) {
       maxStreak = Math.max(maxStreak, currentStreak);
     } else {
       currentStreak = 0;
+    }
+    if (date === todayStr) {
+      currentStreakToday = currentStreak;
     }
   });
 
@@ -126,6 +135,7 @@ function calculateCompletion (logs, startDate, totalDays, targetTimes) {
     completed_days: completed,
     completion_rate: completionRate,
     max_streak: maxStreak,
+    current_streak_today: currentStreakToday,
     progress: {
       current: progressCurrent,
       total: totalDays,

@@ -1,0 +1,12 @@
+<view class="mask" wx:if="{{visible}}" catchtap="onTapMask">
+  <view class="modal">
+    <view class="content">
+      <text class="emoji">{{copy.emoji}}</text>
+      <text class="text">{{copy.text}}</text>
+      <canvas canvas-id="confetti" class="confetti" wx:if="{{visible}}"></canvas>
+    </view>
+    <view class="actions">
+      <button class="primary" bindtap="dismiss">好的</button>
+    </view>
+  </view>
+</view>

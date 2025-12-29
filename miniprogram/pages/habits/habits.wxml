@@ -12,9 +12,19 @@
 
   <!-- 习惯库内容 -->
   <view class="tab-content" wx:if="{{currentTab === 0}}">
+    <!-- P2: 习惯数量软限制提示 -->
+    <view class="habit-limit-hint" wx:if="{{inProgressCount > 3}}">
+      <view class="hint-icon">💡</view>
+      <view class="hint-content">
+        <view class="hint-title">习惯不在多</view>
+        <view class="hint-text">先把现在的做轻松，再加新的也不迟</view>
+      </view>
+    </view>
+
     <!-- 搜索框 -->
     <view class="search-box">
-      <input class="search-input" placeholder="搜索习惯模板" bindinput="onSearchInput" value="{{searchQuery}}" />
+      <!-- P0-1: 优化搜索框占位文案 -->
+      <input class="search-input" placeholder="想变轻一点？随便看看" bindinput="onSearchInput" value="{{searchQuery}}" />
     </view>
 
     <!-- 分类筛选 -->
@@ -27,6 +37,12 @@
         {{item.label}}
       </view>
     </scroll-view>
+
+    <!-- P0-1: 添加分类提示 -->
+    <view class="category-hint">
+      <text class="hint-icon">💡</text>
+      <text class="hint-text">先选不费力的，其他可以以后再说</text>
+    </view>
 
     <!-- 加载中 -->
     <view class="loading-skeleton" wx:if="{{loadingTemplates}}">
@@ -42,12 +58,19 @@
           <view class="template-category">{{item.category_name}}</view>
         </view>
         <view class="template-name">{{item.name}}</view>
-        <view class="template-trigger">触发: {{item.default_trigger}}</view>
-        <view class="template-desc">{{item.description}}</view>
+        <!-- P0-1: 触发条件弱化展示 -->
+        <view class="template-trigger">在{{item.default_trigger}}</view>
+        <!-- P0-1: 描述区优化，强调轻松感 -->
+        <view class="template-desc-new">
+          <text class="desc-time">只要 30 秒</text>
+          <text class="desc-note">做不到也没关系</text>
+        </view>
+        <view class="template-desc-original" wx:if="{{item.description}}">{{item.description}}</view>
         <view class="btn-add-wrapper">
+          <!-- P0-1: 添加按钮文案优化，从承诺改为尝试 -->
           <button class="btn-add" bindtap="addTemplate" data-id="{{item._id}}">
             <text class="btn-add-icon">+</text>
-            <text class="btn-add-text">添加</text>
+            <text class="btn-add-text">试试这个</text>
           </button>
         </view>
       </view>
@@ -78,8 +101,9 @@
         <view class="filter-label">筛选</view>
         <scroll-view class="filter-scroll" scroll-x>
           <view class="filter-item {{myHabitsFilter === 'all' ? 'active' : ''}}" bindtap="switchMyHabitsFilter" data-value="all">全部</view>
-          <view class="filter-item {{myHabitsFilter === 'in_progress' ? 'active' : ''}}" bindtap="switchMyHabitsFilter" data-value="in_progress">进行中</view>
-          <view class="filter-item {{myHabitsFilter === 'finished' ? 'active' : ''}}" bindtap="switchMyHabitsFilter" data-value="finished">已完成</view>
+          <!-- P0-2: 优化状态文案，降低失败感 -->
+          <view class="filter-item {{myHabitsFilter === 'in_progress' ? 'active' : ''}}" bindtap="switchMyHabitsFilter" data-value="in_progress">正在陪伴</view>
+          <view class="filter-item {{myHabitsFilter === 'finished' ? 'active' : ''}}" bindtap="switchMyHabitsFilter" data-value="finished">暂时放下</view>
         </scroll-view>
       </view>
 
@@ -89,6 +113,8 @@
         <scroll-view class="filter-scroll" scroll-x>
           <view class="filter-item {{myHabitsSortBy === 'created' ? 'active' : ''}}" bindtap="switchMyHabitsSortBy" data-value="created">按创建</view>
           <view class="filter-item {{myHabitsSortBy === 'progress' ? 'active' : ''}}" bindtap="switchMyHabitsSortBy" data-value="progress">按进度</view>
+          <!-- P1-2: 新增按今天最轻排序 -->
+          <view class="filter-item {{myHabitsSortBy === 'easiest' ? 'active' : ''}}" bindtap="switchMyHabitsSortBy" data-value="easiest">按今天最轻</view>
         </scroll-view>
       </view>
     </view>
@@ -109,15 +135,21 @@
             data-id="{{item._id}}">
         <view class="habit-main-info">
           <view class="habit-name">{{item.name}}</view>
+          <!-- P0-2: 使用优化后的状态文案 -->
           <view class="habit-status {{item.status}}">
-            {{item.status === 'in_progress' ? '进行中' : '已结束'}}
+            {{item.statusText}}
           </view>
         </view>
         <view class="habit-progress">
-          <view class="habit-progress-text">第 {{item.progress.current}} / {{item.progress.total}} 天</view>
+          <!-- P0-2: 使用温暖进度文案替代 Day X/Y -->
+          <view class="habit-progress-text-warm">{{item.warmProgressText}}</view>
           <view class="habit-progress-bar">
             <view class="habit-progress-inner" style="width: {{item.progress.percentage}}%;"></view>
           </view>
+        </view>
+        <!-- P1-1: 添加暂停/恢复按钮 -->
+        <view class="habit-actions" wx:if="{{item.status === 'in_progress'}}" catchtap="stopPropagation">
+          <button class="btn-pause" bindtap="pauseHabit" data-id="{{item._id}}">暂停一阵</button>
         </view>
       </view>
     </view>

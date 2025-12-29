@@ -96,7 +96,7 @@ const memberBenefits = [
 ];
 
 /**
- * 打卡成功文案池
+ * 打卡成功文案池（原有的，保留）
  */
 const checkInSuccessTexts = [
   '已记录,做得很好!',
@@ -104,6 +104,19 @@ const checkInSuccessTexts = [
   '继续保持,你很棒!',
   '做得很好,坚持下去!',
   '又打卡了,真不错!'
+];
+
+/**
+ * 打卡情绪反馈文案池（优化版 - home.md要求）
+ */
+const checkInEmotionTexts = [
+  '✔ 今天也算数',
+  '🌱 没有失约',
+  '⭐ 你做到了',
+  '💚 又多了一次',
+  '👏 真棒',
+  '🎯 完成了',
+  '✨ 很好'
 ];
 
 module.exports = {
@@ -114,5 +127,6 @@ module.exports = {
   categoryIcons,
   categoryNames,
   memberBenefits,
-  checkInSuccessTexts
+  checkInSuccessTexts,
+  checkInEmotionTexts
 };
