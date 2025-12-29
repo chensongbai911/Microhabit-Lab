@@ -44,7 +44,7 @@
 右键点击每个文件夹 → "上传并部署:云端安装依赖"
 ```
 
-需要部署的云函数(10个):
+需要部署的云函数(11个):
 - ✅ initUser
 - ✅ getTodayHabits
 - ✅ createHabit
@@ -54,7 +54,12 @@
 - ✅ updateHabitStatus
 - ✅ createPayment
 - ✅ activateMembership
+- ✅ getMyHabits
 - ✅ initTemplates (导入数据后可删除)
+
+依赖提示:
+- 请务必选择“上传并部署：云端安装依赖”。
+- `getMyHabits` 需 `wx-server-sdk` 版本 `~2.6.3`，否则会出现 `Cannot find module 'wx-server-sdk'` 报错。
 
 > 如需支付功能: 在云开发控制台绑定商户号/密钥, 设置环境变量 `SUB_MCH_ID` (子商户号), 部署 `createPayment` 与 `activateMembership` 后再在前端发起支付。未配置商户号时, 会员页会提示“待配置商户”, 按钮禁用。
 
@@ -70,6 +75,11 @@
 ### 6️⃣ 开始测试! 🎉
 
 点击开发者工具的"编译"按钮,开始体验!
+
+**我的习惯端到端验证**:
+- 在习惯库页切换到"我的习惯"Tab
+- 期望：列表正常加载，无"云函数依赖缺失，请重新部署"提示
+- 如出现提示：对 `getMyHabits` 重新执行"上传并部署：云端安装依赖"后重试
 
 ---
 

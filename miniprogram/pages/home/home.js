@@ -212,16 +212,47 @@ Page({
   /**
    * 显示周期结束弹窗
    */
-  showEndedHabitModal (habit) {
-    // TODO: 调用云函数获取习惯完成情况
-    this.setData({
-      showEndModal: true,
-      endedHabit: {
-        ...habit,
-        completed_days: 15,  // 临时数据
-        completion_rate: 71   // 临时数据
+  async showEndedHabitModal (habit) {
+    try {
+      // 调用云函数获取习惯完成情况
+      const res = await wx.cloud.callFunction({
+        name: 'getHabitDetail',
+        data: { user_habit_id: habit._id }
+      });
+
+      if (res.result.code === 0) {
+        const { stats } = res.result.data;
+        this.setData({
+          showEndModal: true,
+          endedHabit: {
+            ...habit,
+            completed_days: stats.completed_days,
+            completion_rate: stats.completion_rate
+          }
+        });
+      } else {
+        // 如果获取失败，显示默认数据
+        this.setData({
+          showEndModal: true,
+          endedHabit: {
+            ...habit,
+            completed_days: 0,
+            completion_rate: 0
+          }
+        });
       }
-    });
+    } catch (error) {
+      console.error('获取习惯详情失败:', error);
+      // 出错时仍显示弹窗，但使用默认数据
+      this.setData({
+        showEndModal: true,
+        endedHabit: {
+          ...habit,
+          completed_days: 0,
+          completion_rate: 0
+        }
+      });
+    }
   },
 
   /**

@@ -72,15 +72,25 @@
   <!-- 我的习惯内容 -->
   <view class="tab-content" wx:if="{{currentTab === 1}}">
     <!-- 筛选/排序条 -->
-    <view class="filter-bar" wx:if="{{!loadingMyHabits && !myHabitsError && myHabits.length > 0}}">
-      <scroll-view class="filter-scroll" scroll-x>
-        <view class="filter-item {{myHabitsFilter === 'all' ? 'active' : ''}}" bindtap="switchMyHabitsFilter" data-value="all">全部</view>
-        <view class="filter-item {{myHabitsFilter === 'in_progress' ? 'active' : ''}}" bindtap="switchMyHabitsFilter" data-value="in_progress">进行中</view>
-        <view class="filter-item {{myHabitsFilter === 'finished' ? 'active' : ''}}" bindtap="switchMyHabitsFilter" data-value="finished">已完成</view>
-        <view class="divider"></view>
-        <view class="filter-item {{myHabitsSortBy === 'created' ? 'active' : ''}}" bindtap="switchMyHabitsSortBy" data-value="created">按创建</view>
-        <view class="filter-item {{myHabitsSortBy === 'progress' ? 'active' : ''}}" bindtap="switchMyHabitsSortBy" data-value="progress">按进度</view>
-      </scroll-view>
+    <view class="filter-bar" wx:if="{{!loadingMyHabits && !myHabitsError && myHabitsRaw.length > 0}}">
+      <!-- 筛选组 -->
+      <view class="filter-group">
+        <view class="filter-label">筛选</view>
+        <scroll-view class="filter-scroll" scroll-x>
+          <view class="filter-item {{myHabitsFilter === 'all' ? 'active' : ''}}" bindtap="switchMyHabitsFilter" data-value="all">全部</view>
+          <view class="filter-item {{myHabitsFilter === 'in_progress' ? 'active' : ''}}" bindtap="switchMyHabitsFilter" data-value="in_progress">进行中</view>
+          <view class="filter-item {{myHabitsFilter === 'finished' ? 'active' : ''}}" bindtap="switchMyHabitsFilter" data-value="finished">已完成</view>
+        </scroll-view>
+      </view>
+
+      <!-- 排序组 -->
+      <view class="filter-group">
+        <view class="filter-label">排序</view>
+        <scroll-view class="filter-scroll" scroll-x>
+          <view class="filter-item {{myHabitsSortBy === 'created' ? 'active' : ''}}" bindtap="switchMyHabitsSortBy" data-value="created">按创建</view>
+          <view class="filter-item {{myHabitsSortBy === 'progress' ? 'active' : ''}}" bindtap="switchMyHabitsSortBy" data-value="progress">按进度</view>
+        </scroll-view>
+      </view>
     </view>
 
     <!-- 加载中 -->
@@ -121,13 +131,20 @@
     </view>
 
     <!-- 空列表 -->
-    <view class="empty-state" wx:if="{{!loadingMyHabits && !myHabitsError && myHabits.length === 0}}">
+    <view class="empty-state" wx:if="{{!loadingMyHabits && !myHabitsError && myHabitsRaw.length === 0}}">
       <view class="empty-icon">🎯</view>
       <view class="empty-title">还没有养成习惯</view>
       <view class="empty-text">从习惯库中选择一个习惯，开启你的微习惯养成之旅</view>
       <view class="empty-action">
         <button class="empty-action-btn" bindtap="switchTab" data-index="0">去选择习惯</button>
       </view>
+    </view>
+
+    <!-- 筛选后无结果 -->
+    <view class="empty-state" wx:if="{{!loadingMyHabits && !myHabitsError && myHabitsRaw.length > 0 && myHabits.length === 0}}">
+      <view class="empty-icon">🔍</view>
+      <view class="empty-title">没有符合条件的习惯</view>
+      <view class="empty-text">切换筛选条件试试</view>
     </view>
   </view>
 </view>

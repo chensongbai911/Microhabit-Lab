@@ -359,12 +359,31 @@
 /* 筛选条 */
 .filter-bar {
   background: white;
+  padding: 20rpx 32rpx;
   border-bottom: 2rpx solid var(--border-light);
 }
 
-.filter-scroll {
+.filter-group {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+
+.filter-group:last-child {
+  margin-bottom: 0;
+}
+
+.filter-label {
+  font-size: 26rpx;
+  color: var(--text-secondary);
+  margin-right: 16rpx;
   white-space: nowrap;
-  padding: 16rpx 32rpx;
+  min-width: 80rpx;
+}
+
+.filter-scroll {
+  flex: 1;
+  white-space: nowrap;
 }
 
 .filter-item {
@@ -380,13 +399,4 @@
 .filter-item.active {
   background: var(--primary-color);
   color: white;
-}
-
-.divider {
-  display: inline-block;
-  width: 2rpx;
-  height: 24rpx;
-  background: var(--border-light);
-  margin: 0 8rpx;
-  vertical-align: middle;
 }

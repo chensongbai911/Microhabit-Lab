@@ -15,7 +15,7 @@
 代码文件:         40+
 文档文件:         12
 页面数量:          6
-云函数:            9
+云函数:            11
 工具函数库:        30+
 样式类:           30+
 代码行数:      10,000+
@@ -30,7 +30,7 @@
 - ✅ **100%** 功能完成度
 - ✅ **5 步** UI/UX 增强全部完成
 - ✅ **6 个** 页面全部开发
-- ✅ **9 个** 云函数全部部署
+- ✅ **11 个** 云函数全部部署
 - ✅ **4 个** 数据库集合已设计
 - ✅ **20 条** 预设微习惯库已准备
 - ✅ **9 份** 完整文档已编写
@@ -85,7 +85,7 @@ d:\AABBCC\
 │   ├── app.js                      # 全局脚本
 │   ├── app.json                    # 全局配置
 │   └── app.wxss                    # 全局样式
-├── cloudfunctions/                 # 9个云函数
+├── cloudfunctions/                 # 11个云函数
 │   ├── initUser/
 │   ├── getTodayHabits/
 │   ├── createHabit/
@@ -94,7 +94,9 @@ d:\AABBCC\
 │   ├── getHabitDetail/
 │   ├── updateHabitStatus/
 │   ├── createPayment/
-│   └── activateMembership/
+│   ├── activateMembership/
+│   ├── getMyHabits/
+│   └── initTemplates/
 ├── 文档文件 (12份)
 │   ├── README.md                   # 项目简介
 │   ├── QUICKSTART.md               # 快速开始
@@ -221,6 +223,10 @@ d:\AABBCC\
 | updateHabitStatus | habitId/action | 结果 | 更新习惯状态 |
 | createPayment | 无 | 支付参数 | 创建支付订单 |
 | activateMembership | 无 | 会员信息 | 激活会员 |
+| getMyHabits | 无 | 我的习惯列表 | 以 `_openid` 过滤，云端安全返回 |
+| initTemplates | 无 | 导入结果 | 一次性导入模板数据（部署后可删除） |
+
+> 依赖说明：部署云函数时请选择“上传并部署：云端安装依赖”。`getMyHabits` 需 `wx-server-sdk` 版本 `~2.6.3`，否则会出现 `Cannot find module 'wx-server-sdk'` 报错。
 
 ---
 

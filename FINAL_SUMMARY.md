@@ -29,7 +29,7 @@
 总计: 6个页面，35+ 个文件，2000+ 行代码
 ```
 
-### ☁️ 云函数开发（9/9完成）
+### ☁️ 云函数开发（11/11完成）
 
 ```
 ✅ initUser              用户初始化
@@ -38,11 +38,13 @@
 ✅ logHabit              打卡记录
 ✅ getStats              统计数据
 ✅ getHabitDetail        习惯详情
+✅ getMyHabits           获取“我的习惯”
+✅ initTemplates         初始化模板数据
 ✅ updateHabitStatus     状态更新
 ✅ createPayment         支付订单
 ✅ activateMembership    会员激活
 ────────────────────────────────────
-总计: 9个云函数，800+ 行代码
+总计: 11个云函数，800+ 行代码
 ```
 
 ### 🛠️ 工具函数库（6个模块完成）
@@ -176,7 +178,7 @@ miniprogram/
 └── app.*           (应用配置)
 
 cloudfunctions/
-└── 9个云函数 (90+ 文件)
+└── 11个云函数 (90+ 文件)
 
 总代码量: 10,000+ 行
 ```
@@ -367,6 +369,7 @@ habit_logs         (打卡记录表)
 ☑ 应用截图已准备
 ☑ 应用描述已编写
 ☑ 云函数已部署
+☑ 关键依赖已安装（如 `wx-server-sdk`）
 ☑ 权限规则已配置
 ☑ 已阅读 LAUNCH_CHECKLIST.md
 ```

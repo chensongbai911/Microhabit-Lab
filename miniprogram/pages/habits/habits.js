@@ -17,6 +17,7 @@ Page({
     templateError: false,
     myHabitsError: false,
     myHabits: [],
+    myHabitsRaw: [],  // 原始数据
     myHabitsFilter: 'all',
     myHabitsSortBy: 'created',
     myHabitsSortOrder: 'desc'
@@ -137,8 +138,13 @@ Page({
           progress: cycleUtil.getCycleProgress(habit)
         }));
 
-        this.setData({ myHabits: habits, loadingMyHabits: false }, () => {
-          this.filterAndSortMyHabits();
+        this.setData({
+          myHabits: habits,
+          myHabitsRaw: habits,  // 保存原始数据
+          loadingMyHabits: false,
+          myHabitsError: false
+        }, () => {
+          this.filterAndSortMyHabits();  // 应用当前筛选
         });
       } else {
         throw new Error(res.result.message);
@@ -146,6 +152,14 @@ Page({
     } catch (error) {
       console.error('加载我的习惯失败:', error);
       this.setData({ loadingMyHabits: false, myHabitsError: true });
+      // 友好提示：常见为云函数未部署或依赖未安装
+      const errMsg = (error && (error.errMsg || error.message)) || '';
+      const isDependencyMissing = /Cannot\sfind\smodule\s'wx-server-sdk'/i.test(errMsg);
+      wx.showToast({
+        title: isDependencyMissing ? '云函数依赖缺失，请重新部署' : '加载失败，请稍后重试',
+        icon: 'none',
+        duration: 2500
+      });
     }
   },
 
@@ -153,11 +167,17 @@ Page({
    * 筛选并排序我的习惯
    */
   filterAndSortMyHabits () {
-    const { myHabits, myHabitsFilter, myHabitsSortBy, myHabitsSortOrder } = this.data;
-    let filtered = myHabits;
+    const { myHabitsRaw, myHabitsFilter, myHabitsSortBy, myHabitsSortOrder } = this.data;
+
+    // 从原始数据开始筛选
+    let filtered = [...myHabitsRaw];  // 创建副本
+
+    // 按状态筛选
     if (myHabitsFilter !== 'all') {
-      filtered = myHabits.filter(h => h.status === myHabitsFilter);
+      filtered = filtered.filter(h => h.status === myHabitsFilter);
     }
+
+    // 排序
     filtered.sort((a, b) => {
       let aVal, bVal;
       if (myHabitsSortBy === 'created') {
@@ -173,6 +193,7 @@ Page({
         return aVal - bVal;
       }
     });
+
     this.setData({ myHabits: filtered });
   },
 

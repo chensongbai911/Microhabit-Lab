@@ -1,14 +1,20 @@
-/* 今日习惯页样式 */
+/* 今日习惯页样式 - 年轻化设计 */
 
 .container {
   min-height: 100vh;
   padding-bottom: 160rpx;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+  background-attachment: fixed;
 }
 
-/* 顶部区域 */
+/* 顶部区域 - 玻璃态设计 */
 .header {
   padding: 48rpx 32rpx 32rpx;
-  background: linear-gradient(135deg, #F7F8FA 0%, #FFFFFF 100%);
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(20rpx);
+  -webkit-backdrop-filter: blur(20rpx);
+  border-bottom: 2rpx solid rgba(255, 255, 255, 0.2);
+  margin-bottom: 20rpx;
 }
 
 .header-top {
@@ -20,15 +26,17 @@
 
 .date {
   font-size: 40rpx;
-  font-weight: 600;
-  color: var(--text-primary);
+  font-weight: 700;
+  color: #FFFFFF;
   margin-bottom: 16rpx;
+  text-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
 }
 
 .encouragement {
   font-size: 28rpx;
-  color: var(--text-secondary);
+  color: rgba(255, 255, 255, 0.9);
   line-height: 1.5;
+  font-weight: 500;
 }
 
 .header-stats {
@@ -36,38 +44,44 @@
 }
 
 .stat-item {
-  background: white;
-  border-radius: 12rpx;
-  padding: 12rpx 20rpx;
-  box-shadow: 0 2rpx 8rpx rgba(15, 23, 42, 0.06);
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(10rpx);
+  border-radius: 16rpx;
+  padding: 16rpx 24rpx;
+  border: 2rpx solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.1);
 }
 
 .stat-label {
-  font-size: 20rpx;
-  color: var(--text-tertiary);
+  font-size: 22rpx;
+  color: rgba(255, 255, 255, 0.8);
   margin-bottom: 4rpx;
+  font-weight: 500;
 }
 
 .stat-value {
-  font-size: 32rpx;
-  font-weight: 600;
-  color: var(--primary-color);
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #FFFFFF;
+  text-shadow: 0 2rpx 4rpx rgba(0, 0, 0, 0.1);
 }
 
-/* 完成度进度条 */
+/* 完成度进度条 - 发光效果 */
 .progress-bar {
   width: 100%;
-  height: 6rpx;
-  background: #E5E7EB;
-  border-radius: 3rpx;
+  height: 8rpx;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4rpx;
   overflow: hidden;
+  box-shadow: inset 0 2rpx 4rpx rgba(0, 0, 0, 0.1);
 }
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--primary-color) 0%, #10B981 100%);
-  border-radius: 3rpx;
+  background: linear-gradient(90deg, #10B981 0%, #34D399 100%);
+  border-radius: 4rpx;
   transition: width 0.3s ease;
+  box-shadow: 0 0 10rpx rgba(16, 185, 129, 0.5);
 }
 
 /* 习惯列表 */
@@ -79,22 +93,43 @@
 .habit-card-wrapper {
   position: relative;
   overflow: visible;
-  margin-bottom: 20rpx;
+  margin-bottom: 24rpx;
 }
 
 .habit-card {
-  background: white;
-  border-radius: 24rpx;
-  padding: 24rpx;
-  box-shadow: 0 2rpx 16rpx rgba(15, 23, 42, 0.06);
-  transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20rpx);
+  border-radius: 28rpx;
+  padding: 28rpx;
+  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.12);
+  border: 2rpx solid rgba(255, 255, 255, 0.6);
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
   position: relative;
   z-index: 10;
+  overflow: hidden;
+}
+
+/* 卡片悬浮动效 */
+.habit-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
 }
 
 .habit-card:active:not(.editing) {
-  transform: scale(0.98);
-  box-shadow: 0 4rpx 20rpx rgba(15, 23, 42, 0.1);
+  transform: scale(0.97) translateY(4rpx);
+  box-shadow: 0 12rpx 40rpx rgba(0, 0, 0, 0.16);
+}
+
+.habit-card:active:not(.editing)::before {
+  opacity: 1;
 }
 
 /* 卡片编辑状态 - 显示菜单时左移 */
@@ -166,13 +201,14 @@
 
 .habit-period {
   font-size: 22rpx;
-  font-weight: 600;
-  color: var(--primary-color);
-  background: var(--primary-bg);
-  padding: 4rpx 12rpx;
-  border-radius: 12rpx;
+  font-weight: 700;
+  color: #FFFFFF;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 6rpx 14rpx;
+  border-radius: 14rpx;
   white-space: nowrap;
   flex-shrink: 0;
+  box-shadow: 0 2rpx 8rpx rgba(102, 126, 234, 0.3);
 }
 
 .habit-meta {
@@ -180,42 +216,46 @@
   align-items: center;
   flex-wrap: wrap;
   gap: 12rpx;
-  margin-bottom: 8rpx;
+  margin-bottom: 12rpx;
 }
 
 .trigger-tag {
   font-size: 24rpx;
-  padding: 6rpx 12rpx;
-  border-radius: 6rpx;
-  background: var(--primary-bg);
-  color: var(--primary-color);
+  padding: 8rpx 14rpx;
+  border-radius: 10rpx;
+  background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+  color: #8B4513;
+  font-weight: 600;
+  box-shadow: 0 2rpx 6rpx rgba(252, 182, 159, 0.3);
 }
 
 .progress-text {
   font-size: 24rpx;
-  color: var(--text-tertiary);
+  color: #6B7280;
+  font-weight: 600;
 }
 
-/* 习惯进度条 */
+/* 习惯进度条 - 彩色渐变 */
 .habit-progress-bar {
   width: 100%;
-  height: 4rpx;
-  background: #E5E7EB;
-  border-radius: 2rpx;
+  height: 6rpx;
+  background: rgba(102, 126, 234, 0.1);
+  border-radius: 3rpx;
   overflow: hidden;
 }
 
 .habit-progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--primary-color) 0%, #10B981 100%);
-  border-radius: 2rpx;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+  border-radius: 3rpx;
   transition: width 0.3s ease;
+  box-shadow: 0 0 8rpx rgba(102, 126, 234, 0.4);
 }
 
-/* 右侧打卡按钮 */
+/* 右侧打卡按钮 - 发光效果 */
 .check-in-btn {
-  width: 72rpx;
-  height: 72rpx;
+  width: 76rpx;
+  height: 76rpx;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -223,31 +263,37 @@
   margin-left: 24rpx;
   transition: all 0.2s;
   flex-shrink: 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  box-shadow: 0 4rpx 16rpx rgba(102, 126, 234, 0.4);
 }
 
 .check-in-btn image {
-  width: 100%;
-  height: 100%;
+  width: 80%;
+  height: 80%;
   border-radius: 50%;
+  filter: brightness(0) invert(1);
 }
 
 .check-in-btn:active:not(.disabled) {
-  transform: scale(0.9);
+  transform: scale(0.85);
+  box-shadow: 0 2rpx 8rpx rgba(102, 126, 234, 0.6);
 }
 
 .check-in-btn.disabled {
-  opacity: 0.5;
+  opacity: 0.6;
+  background: linear-gradient(135deg, #9CA3AF 0%, #6B7280 100%);
+  box-shadow: none;
 }
 
 .check-in-btn.loading {
-  opacity: 0.7;
+  opacity: 0.8;
 }
 
 .btn-spinner {
   width: 32rpx;
   height: 32rpx;
-  border: 3rpx solid rgba(76, 184, 165, 0.3);
-  border-top-color: var(--primary-color);
+  border: 3rpx solid rgba(255, 255, 255, 0.3);
+  border-top-color: #FFFFFF;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -256,28 +302,38 @@
   to { transform: rotate(360deg); }
 }
 
-/* 全部完成提示 */
+/* 全部完成提示 - 玻璃态设计 */
 .completed-banner {
-  background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+  background: linear-gradient(135deg, #10B981 0%, #34D399 100%);
   color: white;
-  padding: 20rpx 32rpx;
+  padding: 24rpx 32rpx;
   margin: 16rpx 32rpx 0;
-  border-radius: 16rpx;
+  border-radius: 24rpx;
   display: flex;
   align-items: center;
   gap: 16rpx;
   animation: slideDown 0.3s ease;
   position: relative;
   overflow: hidden;
+  box-shadow: 0 8rpx 32rpx rgba(16, 185, 129, 0.3),
+              0 4rpx 16rpx rgba(16, 185, 129, 0.2);
+  border: 1rpx solid rgba(255, 255, 255, 0.3);
 }
 
 .completed-icon {
-  font-size: 36rpx;
+  font-size: 40rpx;
+  animation: bounce 0.5s ease;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8rpx); }
 }
 
 .completed-text {
-  font-size: 28rpx;
-  font-weight: 500;
+  font-size: 30rpx;
+  font-weight: 600;
+  text-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
 }
 
 /* 粒子特效容器 */
@@ -377,20 +433,27 @@
   }
 }
 
-/* 加载状态 */
+/* 加载状态 - 玻璃态设计 */
 .loading-state {
   padding: 120rpx 32rpx;
   text-align: center;
 }
 
 .spinner {
-  width: 40rpx;
-  height: 40rpx;
-  border: 4rpx solid #f0f2f5;
-  border-top-color: var(--primary-color);
+  width: 48rpx;
+  height: 48rpx;
+  border: 4rpx solid rgba(255, 255, 255, 0.2);
+  border-top-color: #667eea;
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin: 0 auto 24rpx;
+  box-shadow: 0 0 20rpx rgba(102, 126, 234, 0.3);
+}
+
+.loading-state text {
+  font-size: 28rpx;
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
 }
 
 .loading-text {
@@ -398,58 +461,75 @@
   color: var(--text-secondary);
 }
 
-/* 错误状态 */
+/* 错误状态 - 玻璃态设计 */
 .error-state {
   padding: 80rpx 32rpx;
   text-align: center;
 }
 
 .error-icon {
-  font-size: 100rpx;
+  font-size: 120rpx;
   margin-bottom: 24rpx;
+  animation: shake 0.5s ease;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-10rpx); }
+  75% { transform: translateX(10rpx); }
 }
 
 .error-title {
-  font-size: 32rpx;
+  font-size: 34rpx;
   font-weight: 600;
-  color: var(--text-primary);
+  color: rgba(255, 255, 255, 0.95);
   margin-bottom: 12rpx;
+  text-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
 }
 
 .error-text {
   font-size: 28rpx;
-  color: var(--text-secondary);
+  color: rgba(255, 255, 255, 0.8);
   margin-bottom: 32rpx;
 }
 
-/* 空状态 */
+/* 空状态 - 玻璃态设计 */
 .empty-state {
-  padding: 80rpx 32rpx;
+  padding: 100rpx 32rpx;
   text-align: center;
 }
 
 .empty-icon {
-  font-size: 100rpx;
+  font-size: 120rpx;
   margin-bottom: 24rpx;
+  opacity: 0.9;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12rpx); }
 }
 
 .empty-title {
-  font-size: 32rpx;
+  font-size: 34rpx;
   font-weight: 600;
-  color: var(--text-primary);
+  color: rgba(255, 255, 255, 0.95);
   margin-bottom: 12rpx;
+  text-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
 }
 
 .empty-text {
   font-size: 28rpx;
-  color: var(--text-secondary);
+  color: rgba(255, 255, 255, 0.8);
   margin-bottom: 32rpx;
 }
 
 .empty-sub {
-  font-size: 28rpx;
-  color: var(--text-tertiary);
+  font-size: 26rpx;
+  color: rgba(255, 255, 255, 0.7);
   margin-bottom: 48rpx;
+  line-height: 1.6;
 }
 
 /* 周期结束弹窗 */
@@ -508,30 +588,51 @@
   gap: 16rpx;
 }
 
-/* 悬浮新建按钮 */
+/* 悬浮新建按钮 - 渐变发光设计 */
 .fab {
   position: fixed;
   right: 32rpx;
   bottom: 120rpx;
-  width: 112rpx;
-  height: 112rpx;
+  width: 120rpx;
+  height: 120rpx;
   border-radius: 50%;
-  background: var(--primary-color);
-  box-shadow: 0 8rpx 24rpx rgba(76, 184, 165, 0.3);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  box-shadow: 0 12rpx 32rpx rgba(102, 126, 234, 0.4),
+              0 6rpx 16rpx rgba(102, 126, 234, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 100;
-  transition: all 0.3s;
+  border: 2rpx solid rgba(255, 255, 255, 0.2);
+}
+
+.fab::before {
+  content: '';
+  position: absolute;
+  inset: -4rpx;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  opacity: 0;
+  transition: opacity 0.3s;
+  z-index: -1;
+  filter: blur(12rpx);
+}
+
+.fab:active::before {
+  opacity: 0.6;
+}
+
+.fab image {
+  width: 56rpx;
+  height: 56rpx;
+  filter: brightness(0) invert(1);
 }
 
 .fab:active {
   transform: scale(0.9);
-}
-
-.fab image {
-  width: 48rpx;
-  height: 48rpx;
+  box-shadow: 0 8rpx 24rpx rgba(102, 126, 234, 0.5),
+              0 4rpx 12rpx rgba(102, 126, 234, 0.4);
 }
 
 /* 习惯卡片滑动菜单 */

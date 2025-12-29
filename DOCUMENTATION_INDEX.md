@@ -27,6 +27,10 @@
 - 完整检查清单
 - 上线步骤
 - 常见问题
+👉 **[DEPLOYMENT.md](./DEPLOYMENT.md)** ⭐ 依赖安装与验证
+- 云函数部署（含“云端安装依赖”）
+- 依赖缺失排查与解决（wx-server-sdk）
+- 我的习惯端到端加载验证
 
 ### 我需要初始化数据库
 👉 **[DATABASE_INIT_GUIDE.md](./DATABASE_INIT_GUIDE.md)** ⭐ 必须完成
@@ -131,6 +135,7 @@
 | 如何快速开始？ | QUICKSTART.md |
 | 如何初始化数据库？ | DATABASE_INIT_GUIDE.md |
 | 如何上线？ | LAUNCH_CHECKLIST.md |
+| 云函数依赖缺失如何处理？ | DEPLOYMENT.md 依赖安装与验证 |
 | 数据库怎么设计的？ | DATABASE_DESIGN.md |
 | 支付怎么配置？ | LAUNCH_CHECKLIST.md 第三阶段 |
 | 有哪些隐私政策要求？ | PRIVACY_POLICY.md |

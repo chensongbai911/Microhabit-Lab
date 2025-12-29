@@ -191,7 +191,7 @@
 ### ✅ 代码完成度：100%
 
 - ✅ 6个页面 (home/habits/create-habit/habit-detail/stats/membership)
-- ✅ 9个云函数 (initUser/getTodayHabits/createHabit/logHabit/getStats/getHabitDetail/updateHabitStatus/createPayment/activateMembership)
+- ✅ 11个云函数 (initUser/getTodayHabits/createHabit/logHabit/getStats/getHabitDetail/updateHabitStatus/createPayment/activateMembership/getMyHabits/initTemplates)
 - ✅ 6个工具模块 (date/permission/cycle/util/constants/error) **新增error**
 - ✅ 完整的样式系统 (variables + common + page styles)
 - ✅ 6000+ 行业务代码
@@ -286,7 +286,7 @@
 ├─ 代码行数:        6,000+ 行
 ├─ 文档字数:       50,000+ 字
 ├─ 页面数量:            6 个
-├─ 云函数:              9 个
+├─ 云函数:              11 个
 ├─ 工具函数:           42 个
 ├─ 样式规则:         150+ 个
 └─ 数据库集合:          4 个
