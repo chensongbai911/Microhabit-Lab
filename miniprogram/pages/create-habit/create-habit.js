@@ -408,6 +408,11 @@ Page({
         wx.vibrateShort();
         util.showToast('🌱 已经开始了', 'success');
 
+        // P0-3: 设置刚创建标记,用于首页温暖提示
+        try {
+          wx.setStorageSync('just_created_habit', true);
+        } catch (e) { }
+
         // 延迟后引导至【首卡激励】页面,完成第一次打卡
         setTimeout(() => {
           const newHabitId = (res.result?.data?.user_habit_id) || (res.result?.data?.habit_id) || '';

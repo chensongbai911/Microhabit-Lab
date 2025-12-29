@@ -31,6 +31,10 @@ Page({
     showEmotionFeedback: false,
     emotionFeedbackText: '',
 
+    // P0-3: 刚创建习惯的温暖提示
+    showJustCreatedHint: false,
+    justCreatedHintText: '',
+
     // 可选：推荐和已结束
     recommendedHabits: [],
     showRecommendation: false,
@@ -45,6 +49,7 @@ Page({
 
   onShow () {
     this.checkFirstCheckinShortcut();
+    this.checkJustCreatedHabit(); // P0-3: 检测刚创建的习惯
     this.loadTodayHabits();
   },
 
@@ -489,6 +494,30 @@ Page({
         wx.navigateTo({
           url: `/pages/onboarding/first-checkin/first-checkin?habitId=${habitId}`
         });
+      }
+    } catch (e) { }
+  },
+
+  /**
+   * P0-3: 检测刚创建的习惯,显示温暖提示(一次性)
+   */
+  checkJustCreatedHabit () {
+    try {
+      const justCreated = wx.getStorageSync('just_created_habit');
+      if (justCreated) {
+        // 显示温暖提示
+        this.setData({
+          showJustCreatedHint: true,
+          justCreatedHintText: '你刚刚为今天留了一件小事'
+        });
+
+        // 3秒后自动消失
+        setTimeout(() => {
+          this.setData({ showJustCreatedHint: false });
+        }, 3000);
+
+        // 清除标记(只显示一次)
+        wx.removeStorageSync('just_created_habit');
       }
     } catch (e) { }
   },

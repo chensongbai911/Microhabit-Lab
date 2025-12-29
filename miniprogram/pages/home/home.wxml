@@ -43,6 +43,11 @@
     <view class="emotion-feedback-text">{{emotionFeedbackText}}</view>
   </view>
 
+  <!-- P0-3: 刚创建习惯的温暖提示 -->
+  <view class="just-created-hint {{showJustCreatedHint ? 'show' : ''}}" wx:if="{{showJustCreatedHint}}">
+    <view class="just-created-text">{{justCreatedHintText}}</view>
+  </view>
+
   <!-- 加载中 -->
   <view class="loading-state" wx:if="{{loading}}">
     <view class="spinner"></view>

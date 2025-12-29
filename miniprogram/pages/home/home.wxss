@@ -412,6 +412,38 @@
   white-space: nowrap;
 }
 
+/* P0-3: 刚创建习惯的温暖提示 */
+.just-created-hint {
+  position: fixed;
+  top: 30%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.8);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  backdrop-filter: blur(10rpx);
+  -webkit-backdrop-filter: blur(10rpx);
+  padding: 32rpx 48rpx;
+  border-radius: 24rpx;
+  z-index: 9998;
+  opacity: 0;
+  transition: all 0.3s ease;
+  pointer-events: none;
+  box-shadow: 0 8rpx 32rpx rgba(102, 126, 234, 0.4);
+  border: 2rpx solid rgba(255, 255, 255, 0.3);
+}
+
+.just-created-hint.show {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.just-created-text {
+  font-size: 30rpx;
+  font-weight: 500;
+  color: #FFFFFF;
+  text-align: center;
+  white-space: nowrap;
+}
+
 /* 粒子特效容器 */
 .confetti-container {
   position: absolute;
