@@ -404,9 +404,11 @@ Page({
       util.hideLoading();
 
       if (res.result.code === 0) {
-        util.showToast('新习惯已加入今日列表', 'success');
+        // P0-1: 情绪确认 - 轻微震动 + 温暖文案
+        wx.vibrateShort();
+        util.showToast('🌱 已经开始了', 'success');
 
-        // 延迟后引导至【首卡激励】页面，完成第一次打卡
+        // 延迟后引导至【首卡激励】页面,完成第一次打卡
         setTimeout(() => {
           const newHabitId = (res.result?.data?.user_habit_id) || (res.result?.data?.habit_id) || '';
           if (newHabitId) {

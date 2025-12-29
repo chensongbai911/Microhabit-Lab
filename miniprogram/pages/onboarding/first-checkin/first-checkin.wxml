@@ -1,15 +1,16 @@
 <view class="container">
   <view class="hero">
-    <text class="title">恭喜你迈出第一步！</text>
-    <text class="subtitle">立即打一次卡，开启7天旅程</text>
+    <text class="title">✔ 这件事,已经有位置了</text>
+    <text class="subtitle">如果你现在有空,可以顺手完成第一次</text>
   </view>
 
   <view class="cta">
-    <button class="checkin-btn" bindtap="onFirstCheckin">立即打一次卡</button>
+    <button class="checkin-btn" bindtap="onFirstCheckin">现在就做</button>
+    <view class="skip-hint">不做也没关系,随时回来</view>
   </view>
 
   <view class="tips">
-    <text>这次打卡只需30秒，我们会给你庆祝反馈🎆</text>
+    <text>这个习惯,随时都可以完成第一次</text>
   </view>
 
   <!-- 反馈弹层组件（动态Tier） -->
