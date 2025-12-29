@@ -1,0 +1,143 @@
+<view class="container">
+  <view class="page-container">
+    <!-- 提醒设置标题 -->
+    <view class="section-header">
+      <view class="section-title">每日提醒</view>
+      <view class="section-desc">定时提醒你完成微习惯</view>
+    </view>
+
+    <!-- 主开关 -->
+    <view class="setting-card">
+      <view class="setting-row">
+        <view class="setting-label">
+          <text class="label-text">开启提醒</text>
+          <text class="label-hint" bindtap="showReminderGuide">查看说明</text>
+        </view>
+        <switch checked="{{reminderEnabled}}" bindchange="toggleReminder" color="#FF6B9D" />
+      </view>
+    </view>
+
+    <!-- 提醒时间设置 -->
+    <view class="setting-card" wx:if="{{reminderEnabled}}">
+      <view class="setting-row">
+        <view class="setting-label">
+          <text class="label-text">早间提醒</text>
+          <text class="label-hint">建议设置为早上习惯时间</text>
+        </view>
+        <picker mode="time" value="{{reminderTime1}}" bindchange="selectTime1">
+          <view class="time-picker">
+            {{reminderTime1}}
+          </view>
+        </picker>
+      </view>
+
+      <view class="divider"></view>
+
+      <view class="setting-row">
+        <view class="setting-label">
+          <text class="label-text">晚间提醒</text>
+          <text class="label-hint">建议设置为晚上习惯时间</text>
+        </view>
+        <picker mode="time" value="{{reminderTime2}}" bindchange="selectTime2">
+          <view class="time-picker">
+            {{reminderTime2}}
+          </view>
+        </picker>
+      </view>
+    </view>
+
+    <!-- 订阅消息状态 -->
+    <view class="section-header" wx:if="{{reminderEnabled}}">
+      <view class="section-title">消息订阅状态</view>
+    </view>
+
+    <view class="setting-card" wx:if="{{reminderEnabled}}">
+      <view class="subscribe-item">
+        <view class="subscribe-label">
+          <text class="subscribe-icon">📅</text>
+          <text>每日习惯提醒</text>
+        </view>
+        <text class="subscribe-status {{subscribeStatus.daily ? 'active' : ''}}">
+          {{subscribeStatus.daily ? '已订阅' : '未订阅'}}
+        </text>
+      </view>
+
+      <view class="divider"></view>
+
+      <view class="subscribe-item">
+        <view class="subscribe-label">
+          <text class="subscribe-icon">🎉</text>
+          <text>完成庆祝提醒</text>
+        </view>
+        <text class="subscribe-status {{subscribeStatus.completion ? 'active' : ''}}">
+          {{subscribeStatus.completion ? '已订阅' : '未订阅'}}
+        </text>
+      </view>
+
+      <view class="divider"></view>
+
+      <view class="subscribe-item">
+        <view class="subscribe-label">
+          <text class="subscribe-icon">🏆</text>
+          <text>周期里程碑提醒</text>
+        </view>
+        <text class="subscribe-status {{subscribeStatus.milestone ? 'active' : ''}}">
+          {{subscribeStatus.milestone ? '已订阅' : '未订阅'}}
+        </text>
+      </view>
+
+      <button class="btn-manage" bindtap="manageSubscribe">管理订阅消息</button>
+    </view>
+
+    <!-- 提醒预览 -->
+    <view class="section-header" wx:if="{{reminderEnabled}}">
+      <view class="section-title">提醒示例</view>
+    </view>
+
+    <view class="preview-card" wx:if="{{reminderEnabled}}">
+      <view class="preview-title">【微习惯实验室】该打卡啦！</view>
+      <view class="preview-content">
+        <view class="preview-row">今日待完成：3个习惯</view>
+        <view class="preview-row">已完成：1个</view>
+        <view class="preview-row">点击查看并完成剩余习惯</view>
+      </view>
+      <view class="preview-time">{{reminderTime1}} & {{reminderTime2}}</view>
+    </view>
+
+    <!-- Phase 3.3-3.4 管理功能 -->
+    <view class="section-header">
+      <view class="section-title">管理</view>
+    </view>
+
+    <view class="setting-card">
+      <view class="setting-row" bindtap="goToDeletedHabits">
+        <view class="setting-label">
+          <text class="label-text">🗑️ 已删除的习惯</text>
+          <text class="label-hint">恢复30天内删除的习惯</text>
+        </view>
+        <text class="arrow">›</text>
+      </view>
+
+      <view class="divider"></view>
+
+      <view class="setting-row" bindtap="goToDataExport">
+        <view class="setting-label">
+          <text class="label-text">📊 导出数据</text>
+          <text class="label-hint">导出所有习惯数据为JSON或CSV</text>
+        </view>
+        <text class="arrow">›</text>
+      </view>
+    </view>
+
+    <!-- 使用说明 -->
+    <view class="tips-card">
+      <view class="tips-title">💡 使用建议</view>
+      <view class="tips-content">
+        <view class="tip-item">• 建议设置2个提醒时间，覆盖早晚习惯</view>
+        <view class="tip-item">• 根据你的触发器选择合适的提醒时间</view>
+        <view class="tip-item">• 首次订阅后，每次打开会自动续订</view>
+        <view class="tip-item">• 可在微信"设置-订阅消息"中管理</view>
+      </view>
+    </view>
+  </view>
+</view>

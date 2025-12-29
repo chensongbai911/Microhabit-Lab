@@ -1,0 +1,30 @@
+<!-- 触发器时间线 -->
+<view class="timeline-container">
+  <view class="timeline">
+    <view wx:for="{{timelineData}}" wx:key="time" class="timeline-item">
+      <view class="timeline-dot">
+        <text class="timeline-icon">{{item.icon}}</text>
+      </view>
+      <view class="timeline-content">
+        <view class="timeline-time">{{item.time}}</view>
+        <view class="timeline-label">{{item.label}}</view>
+        <view class="timeline-description">{{item.description}}</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="timeline-legend">
+    <view class="legend-item">
+      <text class="legend-icon">🌅</text>
+      <text class="legend-text">晨间习惯最容易成功</text>
+    </view>
+    <view class="legend-item">
+      <text class="legend-icon">💼</text>
+      <text class="legend-text">工作时间需要规律</text>
+    </view>
+    <view class="legend-item">
+      <text class="legend-icon">🌙</text>
+      <text class="legend-text">晚间容易被打扰</text>
+    </view>
+  </view>
+</view>

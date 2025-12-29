@@ -4,7 +4,22 @@
     <!-- 标题和提示 -->
     <view class="header">
       <view class="title">{{pageTitle}}</view>
-      <view class="subtitle">写下一个30秒内能完成的小动作</view>
+      <!-- Phase 1改进: 编辑模式显示进度信息 -->
+      <view class="subtitle" wx:if="{{mode === 'create'}}">写下一个30秒内能完成的小动作</view>
+      <view class="habit-status" wx:else>
+        <view class="status-item">
+          <text class="status-label">已进行</text>
+          <text class="status-value">{{habitStatus.currentDay}}/{{habitStatus.totalDays}}天</text>
+        </view>
+        <view class="status-item">
+          <text class="status-label">完成率</text>
+          <text class="status-value">{{habitStatus.completionRate}}%</text>
+        </view>
+        <view class="status-item">
+          <text class="status-label">最后完成</text>
+          <text class="status-value">{{habitStatus.lastCompletedAt}}</text>
+        </view>
+      </view>
     </view>
 
     <!-- 表单 -->
@@ -19,47 +34,104 @@
                bindinput="handleNameInput" />
         <view class="form-hint">
           <text class="text-tertiary">不要写成"每天跑步5公里",先从"穿上跑鞋走出门100米"开始</text>
-          <text class="char-count">{{formData.name.length}}/30</text>
+          <view class="form-feedback">
+            <text class="char-count">{{nameLength}}/30</text>
+            <text class="feedback-status" wx:if="{{nameFeedback}}">{{nameFeedback}}</text>
+          </view>
+        </view>
+        <!-- 推荐提示 -->
+        <view class="recommendation-hint" wx:if="{{formData.name.length > 0}}">
+          <text class="hint-icon">💡</text>
+          <text class="hint-text">推荐 <strong>{{triggerCategories[selectedTriggerCategory].label}}</strong> 时间段的触发器</text>
         </view>
       </view>
 
-      <!-- 触发器 -->
+      <!-- 触发器分类选择 -->
       <view class="form-item">
-        <view class="form-label">选择一个触发场景</view>
-        <view class="trigger-options">
-          <view class="trigger-btn {{formData.trigger === item.value ? 'active' : ''}}"
-                wx:for="{{triggerOptions}}"
+        <view class="form-label">选择触发时间</view>
+        <view class="trigger-categories">
+          <view wx:for="{{allCategories}}"
+                wx:key="key"
+                class="category-tag {{selectedTriggerCategory === item.key ? 'active' : ''}}"
+                data-category="{{item.key}}"
+                bindtap="handleTriggerCategorySelect">
+            <text class="category-icon">{{item.icon}}</text>
+            <text class="category-name">{{item.label}}</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 触发器列表 -->
+      <view class="form-item">
+        <view class="trigger-list">
+          <view wx:for="{{recommendedTriggers}}"
                 wx:key="value"
-                bindtap="handleTriggerSelect"
-                data-value="{{item.value}}">
-            {{item.label}}
+                class="trigger-option {{formData.trigger === item.value ? 'selected' : ''}}"
+                data-value="{{item.value}}"
+                bindtap="handleTriggerSelect">
+            <text class="trigger-icon">{{item.icon}}</text>
+            <view class="trigger-info">
+              <text class="trigger-label">{{item.label}}</text>
+              <text class="trigger-time">{{item.time}}</text>
+            </view>
+            <!-- 完成率数据显示 -->
+            <view class="trigger-stats" wx:if="{{item.completionRate > 0}}">
+              <text class="stat-completion">{{item.completionRate}}%</text>
+              <text class="stat-label">完成率</text>
+            </view>
+            <text class="trigger-checkmark" wx:if="{{formData.trigger === item.value}}">✓</text>
           </view>
         </view>
 
         <!-- 自定义触发器输入 -->
-        <input class="form-input mt-sm"
-               wx:if="{{formData.trigger === 'other'}}"
-               placeholder="请输入触发场景,如: 下午茶时"
-               value="{{formData.customTrigger}}"
-               maxlength="12"
-               bindinput="handleCustomTriggerInput" />
+        <view class="custom-trigger" wx:if="{{formData.trigger === 'other'}}">
+          <input class="form-input"
+                 placeholder="输入自定义触发器"
+                 value="{{formData.customTrigger}}"
+                 bindinput="handleCustomTriggerInput"
+                 maxlength="20" />
+        </view>
       </view>
 
       <!-- 执行频次 -->
       <view class="form-item">
         <view class="form-label">每天执行几次?</view>
         <view class="frequency-options">
-          <view class="frequency-btn {{formData.target_times_per_day === 1 ? 'active' : ''}}"
+          <view wx:for="{{frequencyOptions}}"
+                wx:key="*this"
+                class="frequency-btn {{formData.target_times_per_day === item ? 'active' : ''}}"
                 bindtap="handleFrequencySelect"
-                data-value="1">
-            <view class="frequency-main">每天1次</view>
-            <view class="frequency-sub">(推荐)</view>
+                data-value="{{item}}">
+            <view class="frequency-main">每天{{item}}次</view>
+            <view class="frequency-sub" wx:if="{{item === 1}}">(推荐)</view>
           </view>
-          <view class="frequency-btn {{formData.target_times_per_day === 2 ? 'active' : ''}}"
-                bindtap="handleFrequencySelect"
-                data-value="2">
-            <view class="frequency-main">每天2次</view>
+        </view>
+
+        <!-- 完成率预测 -->
+        <view class="frequency-impact">
+          <view class="impact-item">
+            <text class="impact-label">预期完成率:</text>
+            <text class="impact-value">{{expectedCompletionRate}}%</text>
           </view>
+          <text class="impact-tips">{{frequencyImpactTips}}</text>
+        </view>
+
+        <!-- 影响分析警告 (编辑模式) -->
+        <view class="impact-analysis" wx:if="{{impactAnalysis.show}}" style="border-left: 4px solid {{impactAnalysis.color}};">
+          <view class="impact-header">
+            <text class="impact-severity {{impactAnalysis.severity}}">
+              {{impactAnalysis.severity === 'info' ? 'ℹ️' : impactAnalysis.severity === 'warning' ? '⚠️' : '❌'}}
+              {{impactAnalysis.severity === 'info' ? '提示' : impactAnalysis.severity === 'warning' ? '警告' : '风险'}}
+            </text>
+          </view>
+          <text class="impact-message">{{impactAnalysis.message}}</text>
+          <view class="impact-list" wx:if="{{impactAnalysis.impacts.length > 0}}">
+            <view class="impact-item-small" wx:for="{{impactAnalysis.impacts}}" wx:key="index">
+              <text class="impact-bullet">•</text>
+              <text class="impact-detail">{{item}}</text>
+            </view>
+          </view>
+          <text class="impact-recommendation" wx:if="{{impactAnalysis.recommendation}}">💡 {{impactAnalysis.recommendation}}</text>
         </view>
       </view>
     </view>

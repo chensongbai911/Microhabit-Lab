@@ -1,0 +1,116 @@
+/**
+ * 触发器时间线组件样式
+ */
+
+.timeline-container {
+  padding: 24rpx;
+  background: rgba(102, 126, 234, 0.04);
+  border-radius: 12rpx;
+  margin-top: 16rpx;
+}
+
+/* 时间线 */
+.timeline {
+  position: relative;
+  padding-left: 60rpx;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 20rpx;
+  top: 0;
+  bottom: 0;
+  width: 2rpx;
+  background: linear-gradient(
+    to bottom,
+    rgba(102, 126, 234, 0.3),
+    rgba(102, 126, 234, 0.1)
+  );
+}
+
+.timeline-item {
+  position: relative;
+  margin-bottom: 24rpx;
+  padding-bottom: 24rpx;
+}
+
+.timeline-item:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+/* 时间线点 */
+.timeline-dot {
+  position: absolute;
+  left: -40rpx;
+  top: 4rpx;
+  width: 40rpx;
+  height: 40rpx;
+  background: white;
+  border: 3rpx solid #667eea;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2rpx 8rpx rgba(102, 126, 234, 0.2);
+}
+
+.timeline-icon {
+  font-size: 20rpx;
+}
+
+/* 时间线内容 */
+.timeline-content {
+  background: white;
+  padding: 16rpx;
+  border-radius: 8rpx;
+  border: 1rpx solid rgba(102, 126, 234, 0.1);
+}
+
+.timeline-time {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #667eea;
+  margin-bottom: 4rpx;
+}
+
+.timeline-label {
+  font-size: 26rpx;
+  color: #333;
+  font-weight: 500;
+  margin-bottom: 4rpx;
+}
+
+.timeline-description {
+  font-size: 24rpx;
+  color: #999;
+  line-height: 1.4;
+}
+
+/* 图例 */
+.timeline-legend {
+  margin-top: 24rpx;
+  padding-top: 24rpx;
+  border-top: 1rpx solid rgba(102, 126, 234, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  font-size: 24rpx;
+  color: #666;
+}
+
+.legend-icon {
+  font-size: 20rpx;
+  min-width: 20rpx;
+}
+
+.legend-text {
+  flex: 1;
+}

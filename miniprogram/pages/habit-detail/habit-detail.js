@@ -101,5 +101,74 @@ Page({
    */
   closeDateModal () {
     this.setData({ showDateModal: false });
+  },
+
+  /**
+   * 查看变更历史
+   */
+  viewHistory () {
+    wx.navigateTo({
+      url: `/pages/habit-history/habit-history?id=${this.data.habitId}`,
+      fail: (error) => {
+        console.error('导航失败', error);
+        wx.showToast({ title: '导航失败', icon: 'none' });
+      }
+    });
+  },
+
+  /**
+   * 编辑习惯
+   */
+  editHabit () {
+    wx.navigateTo({
+      url: `/pages/create-habit/create-habit?id=${this.data.habitId}`,
+      fail: (error) => {
+        console.error('导航失败', error);
+        wx.showToast({ title: '导航失败', icon: 'none' });
+      }
+    });
+  },
+
+  /**
+   * 删除习惯（软删除）
+   */
+  deleteHabit () {
+    wx.showModal({
+      title: '删除确认',
+      content: '删除后可在"已删除"页面中的30天内恢复，确定删除吗？',
+      confirmText: '删除',
+      cancelText: '取消',
+      success: async (res) => {
+        if (res.confirm) {
+          this.setData({ loading: true });
+          try {
+            const deleteRes = await wx.cloud.callFunction({
+              name: 'softDeleteHabit',
+              data: { user_habit_id: this.data.habitId }
+            });
+
+            if (deleteRes.result.code === 0) {
+              wx.showToast({
+                title: '已删除，30天内可恢复',
+                icon: 'success'
+              });
+              setTimeout(() => {
+                wx.navigateBack();
+              }, 1000);
+            } else {
+              wx.showToast({
+                title: deleteRes.result.message || '删除失败',
+                icon: 'none'
+              });
+              this.setData({ loading: false });
+            }
+          } catch (error) {
+            console.error('删除失败', error);
+            wx.showToast({ title: '删除失败', icon: 'none' });
+            this.setData({ loading: false });
+          }
+        }
+      }
+    });
   }
 });

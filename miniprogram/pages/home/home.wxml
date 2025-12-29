@@ -7,10 +7,15 @@
         <view class="date">{{dateDisplay}}</view>
         <view class="encouragement">{{encouragementText}}</view>
       </view>
-      <view class="header-stats" wx:if="{{habits.length > 0}}">
-        <view class="stat-item">
-          <view class="stat-label">完成率</view>
-          <view class="stat-value">{{completionRate}}%</view>
+      <view class="header-actions">
+        <view class="header-stats" wx:if="{{habits.length > 0}}">
+          <view class="stat-item">
+            <view class="stat-label">完成率</view>
+            <view class="stat-value">{{completionRate}}%</view>
+          </view>
+        </view>
+        <view class="settings-btn" bindtap="goToSettings">
+          <!-- 使用emoji作为图标,如需PNG请替换为image标签 -->
         </view>
       </view>
     </view>
@@ -121,6 +126,35 @@
 
   <!-- 菜单覆盖层 - 用于关闭菜单 -->
   <view class="menu-overlay" wx:if="{{editingId}}" bindtap="handleCardTap" data-id="{{editingId}}"></view>
+
+  <!-- Phase 3新增: 推荐习惯区域 -->
+  <view class="recommended-section" wx:if="{{showRecommendation && recommendedHabits && recommendedHabits.length > 0}}">
+    <view class="recommended-header">
+      <text class="recommended-title">💡 为你推荐</text>
+      <text class="recommended-subtitle">{{recommendedHabits.length}}个适合你的微习惯</text>
+    </view>
+
+    <view class="recommended-items">
+      <view wx:for="{{recommendedHabits}}"
+            wx:key="name"
+            class="recommended-item"
+            data-habit="{{item}}"
+            bindtap="addRecommendedHabit">
+        <view class="recommended-content">
+          <view class="recommended-name">{{item.name}}</view>
+          <view class="recommended-desc">{{item.description}}</view>
+          <view class="recommended-reason">💡 {{item.reason}}</view>
+        </view>
+        <view class="recommended-stats">
+          <text class="stat-rate">{{item.completionRate}}%</text>
+          <text class="stat-label">完成率</text>
+        </view>
+        <view class="recommended-action">
+          <text class="action-text">+</text>
+        </view>
+      </view>
+    </view>
+  </view>
 
   <!-- 底部新建按钮 -->
   <view class="fab" bindtap="goToCreate">

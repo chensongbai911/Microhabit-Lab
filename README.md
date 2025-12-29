@@ -11,7 +11,8 @@ AABBCC/
 │   │   ├── stats/                  # 数据&我页
 │   │   ├── create-habit/           # 新建习惯页
 │   │   ├── habit-detail/           # 习惯详情页
-│   │   └── membership/             # 会员页
+│   │   ├── membership/             # 会员页
+│   │   └── settings/               # 提醒设置页
 │   ├── components/                 # 通用组件
 │   ├── utils/                      # 工具函数
 │   │   ├── date.js                 # 日期工具
@@ -39,6 +40,8 @@ AABBCC/
 │   ├── createPayment/              # 支付下单
 │   ├── activateMembership/         # 会员激活
 │   ├── getMyHabits/                # 我的习惯(云端权限安全)
+│   ├── updateUserSettings/         # 更新用户设置(提醒)
+│   ├── sendReminder/               # 发送每日提醒(定时触发)
 │   └── initTemplates/              # 模板初始化(一次性)
 │
 ├── project.config.json             # 项目配置

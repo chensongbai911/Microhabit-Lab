@@ -1,0 +1,67 @@
+<!-- 习惯变更历史页面 -->
+<view class="container">
+  <!-- 空状态 -->
+  <view class="empty-state" wx:if="{{emptyState && !loading}}">
+    <view class="empty-icon">📝</view>
+    <view class="empty-text">暂无变更记录</view>
+    <view class="empty-hint">还没有对此习惯进行任何修改</view>
+  </view>
+
+  <!-- 变更列表 -->
+  <view class="change-list" wx:else>
+    <view class="timeline">
+      <view class="change-item" wx:for="{{changeLogs}}" wx:key="{{item._id}}" bindtap="toggleExpand" data-index="{{index}}">
+        <!-- 时间线点 -->
+        <view class="timeline-dot {{item.isUndo ? 'undo' : 'field'}}">
+          <text>{{item.isUndo ? '↩️' : '✏️'}}</text>
+        </view>
+
+        <!-- 卡片内容 -->
+        <view class="timeline-card">
+          <!-- 简要信息 -->
+          <view class="change-header">
+            <text class="field-name">{{item.fieldLabel}}</text>
+            <text class="change-time">{{item.time}}</text>
+          </view>
+
+          <!-- 值变化简览 -->
+          <view class="value-preview" wx:if="{{!expanded[index]}}">
+            <text class="value-old">{{item.old_value}}</text>
+            <text class="arrow">→</text>
+            <text class="value-new">{{item.new_value}}</text>
+          </view>
+
+          <!-- 详细内容 (展开时) -->
+          <view class="details" wx:if="{{expanded[index]}}">
+            <view class="detail-row">
+              <text class="label">修改前:</text>
+              <text class="value">{{item.old_value}}</text>
+            </view>
+            <view class="detail-row">
+              <text class="label">修改后:</text>
+              <text class="value">{{item.new_value}}</text>
+            </view>
+
+            <!-- 恢复按钮 (仅在非撤销操作时显示) -->
+            <view class="action-buttons" wx:if="{{!item.isUndo}}">
+              <button class="btn-restore" bindtap="restoreChange" data-index="{{index}}">
+                ↩️ 恢复到此状态
+              </button>
+            </view>
+          </view>
+
+          <!-- 展开指示 -->
+          <view class="expand-indicator">
+            <text class="icon {{expanded[index] ? 'expanded' : ''}}">{{expanded[index] ? '▲' : '▼'}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 加载状态 -->
+  <view class="loading" wx:if="{{loading}}">
+    <view class="spinner"></view>
+    <text>加载中...</text>
+  </view>
+</view>

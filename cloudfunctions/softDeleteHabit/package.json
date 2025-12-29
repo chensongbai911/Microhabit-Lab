@@ -1,0 +1,12 @@
+{
+  "name": "softDeleteHabit",
+  "version": "1.0.0",
+  "description": "Soft delete habit for 30-day recovery",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

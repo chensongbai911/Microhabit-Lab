@@ -259,6 +259,69 @@
 	}
 }
 
+/* 操作区域 */
+.actions-card {
+	background: white;
+	border-radius: 24rpx;
+	padding: 28rpx;
+	box-shadow: 0 2rpx 16rpx rgba(15, 23, 42, 0.06);
+	margin-top: 20rpx;
+	margin-bottom: 40rpx;
+}
+
+.action-buttons {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 12rpx;
+}
+
+.btn-history,
+.btn-edit,
+.btn-delete {
+	padding: 16rpx 12rpx;
+	border-radius: 16rpx;
+	font-size: 24rpx;
+	font-weight: 600;
+	border: none;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	height: auto;
+	line-height: 1.5;
+}
+
+.btn-history {
+	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	color: white;
+	box-shadow: 0 4rpx 12rpx rgba(102, 126, 234, 0.3);
+}
+
+.btn-history:active {
+	box-shadow: 0 2rpx 8rpx rgba(102, 126, 234, 0.4);
+	transform: scale(0.98);
+}
+
+.btn-edit {
+	background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+	color: white;
+	box-shadow: 0 4rpx 12rpx rgba(245, 87, 108, 0.3);
+}
+
+.btn-edit:active {
+	box-shadow: 0 2rpx 8rpx rgba(245, 87, 108, 0.4);
+	transform: scale(0.98);
+}
+
+.btn-delete {
+	background: #ff6b6b;
+	color: white;
+	box-shadow: 0 4rpx 12rpx rgba(255, 107, 107, 0.3);
+}
+
+.btn-delete:active {
+	box-shadow: 0 2rpx 8rpx rgba(255, 107, 107, 0.4);
+	transform: scale(0.98);
+}
+
 @keyframes slideIn {
 	from {
 		opacity: 0;

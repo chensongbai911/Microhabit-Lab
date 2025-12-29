@@ -5,17 +5,28 @@ const _ = db.command;
 
 /**
  * 获取用户的所有习惯
+ * @param {String} status - 可选：'active'|'deleted'|'paused'|'completed'，默认为'active'
  */
 exports.main = async (event, context) => {
   const wxContext = cloud.getWXContext();
   const openid = wxContext.OPENID;
+  const { status = 'active' } = event;
 
   try {
-    // 查询用户创建的所有习惯
-    const { data: habits } = await db.collection('user_habits')
+    // 构建查询条件
+    let query = db.collection('user_habits')
       .where({
         _openid: openid
-      })
+      });
+
+    // 如果指定了状态，添加状态过滤
+    if (status) {
+      query = query.where({
+        status: status
+      });
+    }
+
+    const { data: habits } = await query
       .orderBy('created_at', 'desc')
       .get();
 

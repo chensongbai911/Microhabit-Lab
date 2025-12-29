@@ -71,6 +71,21 @@
       <view class="advice-text">{{advice}}</view>
     </view>
 
+    <!-- 操作区域 -->
+    <view class="actions-card">
+      <view class="action-buttons">
+        <button class="btn-history" bindtap="viewHistory">
+          📋 查看历史
+        </button>
+        <button class="btn-edit" bindtap="editHabit">
+          ✏️ 编辑
+        </button>
+        <button class="btn-delete" bindtap="deleteHabit">
+          🗑️ 删除
+        </button>
+      </view>
+    </view>
+
     <!-- 日期详情弹窗 -->
     <view class="modal-mask" wx:if="{{showDateModal}}" catchtap="closeDateModal">
       <view class="date-modal" catchtap>

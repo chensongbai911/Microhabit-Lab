@@ -1,0 +1,81 @@
+<!-- 已删除习惯页面 -->
+<view class="container">
+  <!-- 空状态 -->
+  <view class="empty-state" wx:if="{{emptyState && !loading}}">
+    <view class="empty-icon">🗑️</view>
+    <view class="empty-text">没有已删除的习惯</view>
+    <view class="empty-hint">所有习惯都安全存在</view>
+  </view>
+
+  <!-- 已删除习惯列表 -->
+  <view class="habits-list" wx:else>
+    <view class="list-header">
+      <text>{{deletedHabits.length}} 个已删除习惯</text>
+    </view>
+
+    <view class="habit-card" wx:for="{{deletedHabits}}" wx:key="{{item._id}}">
+      <!-- 卡片头 -->
+      <view class="card-header">
+        <view class="habit-title-section">
+          <text class="habit-icon">🗑️</text>
+          <text class="habit-name">{{item.name}}</text>
+        </view>
+        <view class="delete-time">{{item.deleted_date}}</view>
+      </view>
+
+      <!-- 恢复倒计时 -->
+      <view class="recovery-countdown">
+        <view class="countdown-bar">
+          <view class="countdown-fill" style="width: {{(item.remaining_days / 30) * 100}}%; background: linear-gradient(90deg, #4FC3F7 0%, rgba(79, 195, 247, 0.1) 100%);"></view>
+        </view>
+        <text class="countdown-text">
+          {{item.can_restore ? '剩余 ' + item.remaining_days + ' 天可恢复' : '恢复期已过期'}}
+        </text>
+      </view>
+
+      <!-- 习惯信息 -->
+      <view class="habit-info">
+        <view class="info-row">
+          <text class="info-label">触发器:</text>
+          <text class="info-value">{{item.trigger}}</text>
+        </view>
+        <view class="info-row">
+          <text class="info-label">目标频率:</text>
+          <text class="info-value">每天 {{item.target_times_per_day}} 次</text>
+        </view>
+        <view class="info-row">
+          <text class="info-label">进度:</text>
+          <text class="info-value">{{item.current_day || 0}}/{{item.total_days || 21}} 天</text>
+        </view>
+      </view>
+
+      <!-- 操作按钮 -->
+      <view class="actions">
+        <button class="btn btn-restore"
+                wx:if="{{item.can_restore}}"
+                bindtap="restoreHabit"
+                data-id="{{item._id}}"
+                data-name="{{item.name}}">
+          ↩️ 恢复
+        </button>
+        <button class="btn btn-restore"
+                wx:else
+                disabled="true">
+          无法恢复
+        </button>
+        <button class="btn btn-delete"
+                bindtap="permanentDelete"
+                data-id="{{item._id}}"
+                data-name="{{item.name}}">
+          ❌ 永久删除
+        </button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 加载状态 -->
+  <view class="loading" wx:if="{{loading}}">
+    <view class="spinner"></view>
+    <text>加载中...</text>
+  </view>
+</view>

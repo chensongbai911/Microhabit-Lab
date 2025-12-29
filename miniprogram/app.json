@@ -5,7 +5,11 @@
     "pages/stats/stats",
     "pages/create-habit/create-habit",
     "pages/habit-detail/habit-detail",
-    "pages/membership/membership"
+    "pages/habit-history/habit-history",
+    "pages/deleted-habits/deleted-habits",
+    "pages/data-export/data-export",
+    "pages/membership/membership",
+    "pages/settings/settings"
   ],
   "window": {
     "backgroundTextStyle": "light",

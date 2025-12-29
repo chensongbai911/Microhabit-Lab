@@ -27,6 +27,11 @@ exports.main = async (event, context) => {
           last_login_time: now,
           member_status: 0,
           member_expire_time: null,
+          reminder_settings: {
+            enabled: false,
+            time1: '08:00',
+            time2: '20:00'
+          },
           created_at: now,
           updated_at: now
         }

@@ -47,6 +47,30 @@ Page({
   },
 
   /**
+   * Phase 3新增: 加载推荐习惯
+   */
+  loadRecommendedHabits (userHabits = []) {
+    const habitRecommend = require('../../utils/habitRecommend.js');
+    const recommended = habitRecommend.recommendHabits(userHabits, 3);
+
+    this.setData({
+      recommendedHabits: recommended,
+      showRecommendation: recommended.length > 0
+    });
+  },
+
+  /**
+   * Phase 3: 添加推荐的习惯
+   */
+  addRecommendedHabit (e) {
+    const habit = e.currentTarget.dataset.habit;
+
+    wx.navigateTo({
+      url: `/pages/create-habit/create-habit?preset_name=${encodeURIComponent(habit.name)}&preset_trigger=&preset_category=${habit.category}`
+    });
+  },
+
+  /**
    * 加载今日习惯
    */
   async loadTodayHabits () {
@@ -102,6 +126,9 @@ Page({
             this.setData({ showCompletedAnimation: false });
           }, 3000);
         }
+
+        // Phase 3新增: 加载推荐习惯
+        this.loadRecommendedHabits(habitsWithPeriod);
       } else {
         throw new Error(res.result.message);
       }
@@ -361,6 +388,15 @@ Page({
   },
 
   /**
+   * 前往设置页面
+   */
+  goToSettings () {
+    wx.navigateTo({
+      url: '/pages/settings/settings'
+    });
+  },
+
+  /**
    * 前往新建页面
    */
   goToCreate () {
@@ -409,7 +445,7 @@ Page({
   },
 
   /**
-   * 编辑习惯
+   * 编辑习惯 - Phase 1改进版
    */
   editHabit (e) {
     const habitId = e.currentTarget.dataset.id;
@@ -417,23 +453,30 @@ Page({
       editingId: null,
       showMenuId: null
     });
+    // 改进: 导航到create-habit页面(编辑模式)
     wx.navigateTo({
-      url: `/pages/habit-detail/habit-detail?id=${habitId}&mode=edit`
+      url: `/pages/create-habit/create-habit?id=${habitId}`
     });
   },
 
   /**
-   * 删除习惯
+   * 删除习惯 - Phase 1改进版(二次确认+详细提示)
    */
   deleteHabit (e) {
     const habitId = e.currentTarget.dataset.id;
-    const habitName = this.data.habits.find(h => h._id === habitId)?.name || '该习惯';
+    const habit = this.data.habits.find(h => h._id === habitId);
+    const habitName = habit?.name || '该习惯';
+
+    // 改进: 更详细的提示和数据保留说明
+    const completedDays = habit?.completed_days || 0;
+    const totalDays = habit?.total_days || 21;
 
     wx.showModal({
-      title: '确认删除',
-      content: `确定要删除"${habitName}"吗?`,
-      confirmText: '删除',
+      title: '确定要删除吗?',
+      content: `删除"${habitName}"\n已进行${completedDays}/${totalDays}天\n\n数据将保存在「已完成」分区,无法恢复`,
+      confirmText: '确认删除',
       cancelText: '取消',
+      confirmColor: '#FF6B9D',
       success: (res) => {
         if (res.confirm) {
           this.performDelete(habitId);
@@ -448,37 +491,38 @@ Page({
   },
 
   /**
-   * 执行删除操作
+   * 执行删除操作 - Phase 1改进版
    */
   performDelete (habitId) {
-    wx.showLoading({ title: '删除中...' });
+    util.showLoading('删除中...');
 
     wx.cloud.callFunction({
       name: 'updateHabitStatus',
       data: {
-        habit_id: habitId,
-        status: 'deleted'
+        user_habit_id: habitId,  // 修正: 使用正确的参数名
+        action: 'delete'         // 修正: 使用正确的action
       },
       success: (res) => {
-        wx.hideLoading();
-        wx.showToast({
-          title: '已删除',
-          icon: 'success',
-          duration: 2000
-        });
-        this.setData({
-          editingId: null,
-          showMenuId: null
-        });
-        this.loadTodayHabits();
+        util.hideLoading();
+
+        if (res.result.code === 0) {
+          util.showToast('已删除习惯', 'success');
+          this.setData({
+            editingId: null,
+            showMenuId: null
+          });
+
+          // 改进: 使用setTimeout确保UI更新完成后再刷新
+          setTimeout(() => {
+            this.loadTodayHabits();
+          }, 500);
+        } else {
+          util.showToast(res.result.message || '删除失败,请重试');
+        }
       },
       fail: (err) => {
-        wx.hideLoading();
-        wx.showToast({
-          title: '删除失败,请重试',
-          icon: 'error',
-          duration: 2000
-        });
+        util.hideLoading();
+        util.showToast('删除失败,请检查网络');
         console.error('删除习惯失败:', err);
       }
     });

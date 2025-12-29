@@ -24,6 +24,12 @@
   margin-bottom: 24rpx;
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
 .date {
   font-size: 40rpx;
   font-weight: 700;
@@ -41,6 +47,37 @@
 
 .header-stats {
   text-align: right;
+}
+
+.settings-btn {
+  width: 64rpx;
+  height: 64rpx;
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(10rpx);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.settings-btn:active {
+  transform: scale(0.95) rotate(60deg);
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.settings-btn image {
+  width: 36rpx;
+  height: 36rpx;
+  opacity: 0.9;
+}
+
+/* CSS绘制设置图标(如果没有图片) */
+.settings-btn::before {
+  content: '⚙️';
+  font-size: 36rpx;
+  line-height: 1;
 }
 
 .stat-item {
@@ -681,3 +718,110 @@
   bottom: 0;
   z-index: 8;
 }
+
+/* Phase 3新增: 推荐习惯区域 */
+.recommended-section {
+  padding: 24rpx 32rpx;
+  margin-bottom: 20rpx;
+}
+
+.recommended-header {
+  margin-bottom: 20rpx;
+}
+
+.recommended-title {
+  display: block;
+  font-size: 32rpx;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.98);
+  margin-bottom: 8rpx;
+}
+
+.recommended-subtitle {
+  display: block;
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.recommended-items {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.recommended-item {
+  display: flex;
+  align-items: center;
+  padding: 20rpx;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 16rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.recommended-item:active {
+  transform: scale(0.98);
+  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.15);
+}
+
+.recommended-content {
+  flex: 1;
+  margin-right: 16rpx;
+}
+
+.recommended-name {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 6rpx;
+}
+
+.recommended-desc {
+  font-size: 22rpx;
+  color: #666;
+  margin-bottom: 8rpx;
+  line-height: 1.4;
+}
+
+.recommended-reason {
+  font-size: 20rpx;
+  color: #667eea;
+  opacity: 0.8;
+}
+
+.recommended-stats {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4rpx;
+  margin-right: 12rpx;
+  min-width: 50rpx;
+}
+
+.stat-rate {
+  font-size: 28rpx;
+  color: #FF6B9D;
+  font-weight: 700;
+}
+
+.stat-label {
+  font-size: 18rpx;
+  color: #999;
+}
+
+.recommended-action {
+  width: 48rpx;
+  height: 48rpx;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.action-text {
+  font-size: 28rpx;
+  font-weight: bold;
+  color: white;
+}
+
