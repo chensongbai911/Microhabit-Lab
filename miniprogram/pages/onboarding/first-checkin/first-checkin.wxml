@@ -1,18 +1,47 @@
 <view class="container">
-  <view class="hero">
-    <text class="title">✔ 这件事,已经有位置了</text>
-    <text class="subtitle">如果你现在有空,可以顺手完成第一次</text>
+  <!-- 加载状态 -->
+  <view class="loading" wx:if="{{loading}}">
+    <text class="loading-text">准备中...</text>
   </view>
 
-  <view class="cta">
-    <button class="checkin-btn" bindtap="onFirstCheckin">现在就做</button>
-    <view class="skip-hint">不做也没关系,随时回来</view>
+  <!-- 主要内容 -->
+  <view class="content" wx:if="{{!loading}}">
+    <!-- 顶部庆祝 -->
+    <view class="hero">
+      <text class="emoji-large">🎉</text>
+      <text class="title">✔ 这件事,已经有位置了</text>
+      <text class="subtitle">如果你现在有空,可以顺手完成第一次</text>
+    </view>
+
+    <!-- 习惯卡片 -->
+    <view class="habit-card" wx:if="{{habitInfo}}">
+      <view class="habit-header">
+        <text class="habit-icon">{{habitInfo.icon || '✨'}}</text>
+        <view class="habit-info">
+          <text class="habit-name">{{habitInfo.name}}</text>
+          <text class="habit-trigger">{{habitInfo.trigger}}</text>
+        </view>
+      </view>
+      <view class="habit-meta">
+        <view class="meta-item">
+          <text class="meta-label">目标频次</text>
+          <text class="meta-value">每天{{habitInfo.target_times_per_day}}次</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 行动按钮 -->
+    <view class="cta">
+      <button class="checkin-btn" bindtap="onFirstCheckin">现在就做</button>
+      <view class="skip-hint">不做也没关系,随时回来</view>
+    </view>
+
+    <!-- 提示文案 -->
+    <view class="tips">
+      <text>✨ 第一次完成会有特别奖励</text>
+    </view>
   </view>
 
-  <view class="tips">
-    <text>这个习惯,随时都可以完成第一次</text>
-  </view>
-
-  <!-- 反馈弹层组件（动态Tier） -->
+  <!-- 反馈弹层组件 -->
   <feedback-modal id="feedback" tier="{{tier}}" visible="{{feedbackVisible}}" bind:dismiss="onDismissFeedback" />
 </view>

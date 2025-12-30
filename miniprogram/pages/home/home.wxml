@@ -6,6 +6,9 @@
     <view class="hero-subtitle">每一个微小行动，都是伟大改变的开始</view>
   </view>
 
+  <!-- 首次长按提示 -->
+  <view class="longpress-hint" wx:if="{{showLongpressHint}}">长按打卡可撤销已完成，试试长按左侧圆圈</view>
+
   <!-- 激励区域 -->
   <view class="encouragement-section" wx:if="{{!loading && !loadError && habits.length > 0}}">
     <view class="encouragement-card">
@@ -81,11 +84,20 @@
 
   <!-- 习惯列表 -->
   <view class="habits-list" wx:elif="{{habits.length > 0}}">
-      <view class="habit-card"
+      <view class="habit-card {{item.is_completed ? 'is-completed' : ''}}"
         wx:for="{{habits}}"
         wx:key="_id"
         bindlongpress="showHabitMenu"
         data-id="{{item._id}}">
+
+      <!-- 右上角撤销（使用 view，避免 button 默认样式） -->
+      <view wx:if="{{item.is_completed}}"
+        class="undo-btn"
+        data-id="{{item._id}}"
+        data-completed="{{item.is_completed}}"
+        bindtap="undoCheckIn">
+        撤销
+      </view>
 
       <!-- 左侧完成状态 -->
       <view class="habit-check"
@@ -93,7 +105,7 @@
         bindlongpress="undoCheckIn"
         data-id="{{item._id}}"
         data-completed="{{item.is_completed}}"
-        catchlongpress="true">
+        catchlongpress="undoCheckIn">
         <view class="check-circle {{item.is_completed ? 'checked' : ''}}">
           <text wx:if="{{item.is_completed}}" class="check-text">✓</text>
         </view>
@@ -121,11 +133,6 @@
           </view>
         </view>
       </view>
-
-      <!-- 完成状态标记 -->
-      <view class="completion-badge" wx:if="{{item.is_completed}}">
-        <text class="badge-text">已完成</text>
-      </view>
     </view>
   </view>
 
@@ -140,6 +147,32 @@
   <!-- 打卡成功提示 -->
   <view class="toast {{showEmotionFeedback ? 'show' : ''}}" wx:if="{{showEmotionFeedback}}">
     <view class="toast-text">{{emotionFeedbackText}}</view>
+  </view>
+
+  <!-- 周期结束弹窗 -->
+  <view class="cycle-end-modal" wx:if="{{showEndModal}}">
+    <view class="modal-overlay" bindtap="hideEndModal"></view>
+    <view class="modal-content" catchtap="stopPropagation">
+      <view class="modal-header">
+        <text class="modal-emoji">🎉</text>
+        <text class="modal-title">21 天实验结束</text>
+      </view>
+
+      <view class="modal-body">
+        <view class="habit-name">{{endedHabit.name}}</view>
+        <view class="habit-stats">
+          <text class="stat-label">完成天数</text>
+          <text class="stat-value">{{endedHabit.completed_days || 0}} / {{endedHabit.cycle_days || 21}}</text>
+        </view>
+        <view class="modal-text">在这 {{endedHabit.cycle_days || 21}} 天里，你在 {{endedHabit.completed_days || 0}} 天完成了这个微习惯，完成率 {{endedHabit.completion_rate || 0}}%。</view>
+      </view>
+
+      <view class="modal-buttons">
+        <button class="btn btn-primary" bindtap="continueHabit">继续下一轮 21 天</button>
+        <button class="btn btn-secondary" bindtap="adjustHabit">太难了，改小一点</button>
+        <button class="btn btn-ghost" bindtap="pauseHabit">先暂停这个习惯</button>
+      </view>
+    </view>
   </view>
 
   <!-- 底部悬浮按钮 -->

@@ -10,6 +10,7 @@
     "pages/data-export/data-export",
     "pages/membership/membership",
     "pages/settings/settings",
+    "pages/settings/privacy",
     "pages/onboarding/first-checkin/first-checkin"
   ],
   "window": {

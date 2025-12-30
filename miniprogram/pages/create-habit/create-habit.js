@@ -420,7 +420,28 @@ Page({
       util.showLoading('创建中...');
 
       // 生成该习惯的提醒配置
-      const reminderConfig = triggerTime.generateReminderConfig(finalTrigger, name.trim());
+      let reminderConfig;
+      if (trigger === 'other') {
+        // 自定义时机，使用用户选择的时间
+        reminderConfig = {
+          time: this.data.reminderTime || '12:00',
+          timeRange: 'custom',
+          category: 'custom'
+        };
+      } else {
+        // 推荐时机，自动生成
+        try {
+          reminderConfig = triggerTime.generateReminderConfig(finalTrigger, name.trim());
+        } catch (e) {
+          // 如果自动生成失败，使用默认配置
+          console.warn('生成提醒配置失败:', e);
+          reminderConfig = {
+            time: '09:00',
+            timeRange: 'morning',
+            category: 'anytime'
+          };
+        }
+      }
 
       const res = await wx.cloud.callFunction({
         name: 'createHabit',
@@ -431,9 +452,9 @@ Page({
           // 提醒配置
           reminder: {
             enabled: true,
-            time: reminderConfig.time,  // 根据触发器自动生成的提醒时间
-            timeRange: reminderConfig.timeRange,
-            category: reminderConfig.category
+            time: reminderConfig.time,
+            timeRange: reminderConfig.timeRange || 'custom',
+            category: reminderConfig.category || 'custom'
           }
         }
       });
@@ -470,12 +491,22 @@ Page({
         // 超出习惯数量限制
         permission.showMembershipGuide('habit_limit');
       } else {
-        util.showToast(res.result.message);
+        const errorMsg = res.result.message || '创建失败';
+        util.showToast(errorMsg);
+        console.error('创建习惯返回错误:', res.result);
       }
     } catch (error) {
       util.hideLoading();
-      util.showToast('创建失败,请重试');
+      // 显示更详细的错误信息
+      const errorMsg = error.errMsg || error.message || '创建失败,请重试';
+      util.showToast(errorMsg);
       console.error('创建习惯失败:', error);
+      console.error('当前表单数据:', {
+        name: this.data.formData.name,
+        trigger: this.data.formData.trigger,
+        customTrigger: this.data.formData.customTrigger,
+        reminderTime: this.data.reminderTime
+      });
     }
   },
 
@@ -483,22 +514,35 @@ Page({
    * 更新习惯 - Phase 1增强版(改进数据刷新) + Phase 3.3变更记录
    */
   async updateHabit (finalTrigger) {
-    const { name, target_times_per_day } = this.data.formData;
+    const { name, target_times_per_day, trigger } = this.data.formData;
     const oldHabit = this.data.oldHabit || {};
 
     try {
       util.showLoading('保存中...');
+
+      // 准备更新数据
+      const updates = {
+        name: name.trim(),
+        trigger: finalTrigger,
+        target_times_per_day: target_times_per_day
+      };
+
+      // 如果是自定义时机且用户修改了提醒时间，也要更新提醒时间
+      if (trigger === 'other' && this.data.reminderTime) {
+        updates.reminder = {
+          enabled: true,
+          time: this.data.reminderTime,
+          timeRange: 'custom',
+          category: 'custom'
+        };
+      }
 
       const res = await wx.cloud.callFunction({
         name: 'updateHabitStatus',
         data: {
           user_habit_id: this.data.habitId,
           action: 'update',
-          updates: {
-            name: name.trim(),
-            trigger: finalTrigger,
-            target_times_per_day: target_times_per_day
-          }
+          updates: updates
         }
       });
 

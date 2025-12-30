@@ -353,5 +353,18 @@ Page({
         wx.showToast({ title: '导航失败', icon: 'none' });
       }
     });
-  }
+  },
+
+  /**
+   * 前往隐私政策页面
+   */
+  goToPrivacyPolicy () {
+    wx.navigateTo({
+      url: '/pages/settings/privacy',
+      fail: (error) => {
+        console.error('导航到隐私政策失败', error);
+        wx.showToast({ title: '无法打开隐私政策', icon: 'none' });
+      }
+    });
+  },
 });

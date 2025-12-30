@@ -225,6 +225,16 @@
         </view>
         <text class="arrow">›</text>
       </view>
+
+      <view class="divider"></view>
+
+      <view class="setting-row" bindtap="goToPrivacyPolicy">
+        <view class="setting-label">
+          <text class="label-text">🔒 隐私政策</text>
+          <text class="label-hint">查看隐私与数据使用说明</text>
+        </view>
+        <text class="arrow">›</text>
+      </view>
     </view>
 
     <!-- 使用说明 -->

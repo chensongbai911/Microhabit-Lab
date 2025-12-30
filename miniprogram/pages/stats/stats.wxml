@@ -34,10 +34,10 @@
       <view class="chart-title">📈 本周完成率趋势</view>
       <view class="chart-container">
         <view class="chart-bars">
-          <view class="bar-item" wx:for="{{weeklyData}}" wx:key="index">
-            <view class="bar-bar" style="height: {{item * 2}}rpx;"></view>
+          <view class="bar-item" wx:for="{{weeklyBars}}" wx:key="index">
+            <view class="bar-bar" style="height: {{item.height}}rpx;"></view>
             <view class="bar-label">{{weekDays[index]}}</view>
-            <view class="bar-value">{{item}}%</view>
+            <view class="bar-value">{{item.rate}}%</view>
           </view>
         </view>
       </view>
@@ -76,6 +76,15 @@
         <view class="stat-value">{{stats.inProgress}}</view>
         <view class="stat-label">进行中</view>
       </view>
+    </view>
+
+    <!-- 错误提示 + 刷新 -->
+    <view class="stats-error" wx:if="{{statsError}}">
+      <text>{{statsError}}</text>
+      <button class="refresh-btn" size="mini" bindtap="handleRefreshTap">刷新</button>
+    </view>
+    <view class="stats-error" wx:elif="{{!statsError}}">
+      <button class="refresh-btn" size="mini" bindtap="handleRefreshTap">刷新</button>
     </view>
 
     <!-- 会员模块 -->

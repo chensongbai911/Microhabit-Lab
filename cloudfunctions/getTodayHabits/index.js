@@ -2,7 +2,22 @@ const cloud = require('wx-server-sdk');
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
 const _ = db.command;
-const response = require('../utils/response');
+// 使用本地 response，若缺失则回退到 utils，再兜底内置实现，避免路径问题
+let response;
+try {
+  response = require('./response');
+} catch (e1) {
+  try {
+    response = require('../utils/response');
+  } catch (e2) {
+    response = {
+      CODES: { PARAM_ERROR: 400, NOT_FOUND: 404, FORBIDDEN: 403 },
+      success: (data = {}, message = 'ok') => ({ code: 0, message, data }),
+      businessError: (code = 400, message = '请求错误', data = null) => ({ code, message, data }),
+      systemError: (message = '系统错误', error = null) => ({ code: 500, message, error: error ? String(error) : undefined })
+    };
+  }
+}
 
 /**
  * 获取今日习惯列表

@@ -39,6 +39,8 @@ Page({
     // P0-3: 刚创建习惯的温暖提示
     showJustCreatedHint: false,
     justCreatedHintText: '',
+    // 长按撤销提示（首次展示）
+    showLongpressHint: false,
 
     // 可选：推荐和已结束
     recommendedHabits: [],
@@ -56,6 +58,26 @@ Page({
     this.checkFirstCheckinShortcut();
     this.checkJustCreatedHabit(); // P0-3: 检测刚创建的习惯
     this.loadTodayHabits();
+    // 首次展示长按撤销提示
+    this.showLongpressHintIfNeeded();
+  },
+
+  /**
+   * 首次展示长按撤销提示，展示后写入本地标记
+   */
+  showLongpressHintIfNeeded () {
+    try {
+      const seen = wx.getStorageSync('seenLongpressHint');
+      if (seen) return;
+
+      this.setData({ showLongpressHint: true });
+      setTimeout(() => {
+        this.setData({ showLongpressHint: false });
+        try { wx.setStorageSync('seenLongpressHint', true); } catch (e) { }
+      }, 4000);
+    } catch (e) {
+      // ignore storage errors
+    }
   },
 
   onPullDownRefresh () {
@@ -144,6 +166,12 @@ Page({
       showRecommendation: recommended.length > 0
     });
   },
+  // 清理节流标志的辅助方法：页面可能被导航，作为保险在短延迟后清理
+  clearCheckingInId (delay = 800) {
+    setTimeout(() => {
+      this.setData({ checkingInId: null });
+    }, delay);
+  },
 
   /**
    * Phase 3: 添加推荐的习惯
@@ -152,13 +180,14 @@ Page({
     const habit = e.currentTarget.dataset.habit;
 
     wx.navigateTo({
-      url: `/pages/create-habit/create-habit?preset_name=${encodeURIComponent(habit.name)}&preset_trigger=&preset_category=${habit.category}`
+      url: `/pages/create-habit/create-habit?preset_name=${encodeURIComponent(habit.name)}&preset_trigger=&preset_category=${encodeURIComponent(habit.category)}`
     });
   },
-
   /**
    * 加载今日习惯 - 优化版（Day 3）
    * 简化数据处理，相信后端返回的计算结果
+            // 解除节流标志，允许用户重试
+            this.setData({ checkingInId: null });
    */
   async loadTodayHabits () {
     this.setData({ loading: true, loadError: false });
@@ -318,7 +347,10 @@ Page({
    * 乐观更新 → 异步调用云函数 → 打卡成功跳首卡页
    */
   async handleCheckIn (e) {
-    const { id, completed } = e.currentTarget.dataset;
+    const { id } = e.currentTarget.dataset;
+    // dataset 值可能是字符串，需要规范化为布尔值
+    let completed = e.currentTarget.dataset.completed;
+    completed = (completed === true || completed === 'true' || completed === 1 || completed === '1');
 
     if (completed) {
       return;
@@ -384,14 +416,18 @@ Page({
             wx.navigateTo({
               url: `/pages/onboarding/first-checkin/first-checkin?habitId=${id}&streak=${data.streak || 0}&feedbackTier=${data.feedbackTier || 'regular'}`
             });
+            // 清理节流标志，允许后续打卡
+            this.clearCheckingInId();
           } else if (res.result && res.result.code === 1002) {
             // 已完成目标
             util.showToast('今日已完成目标次数');
+            this.clearCheckingInId();
           } else {
             // 其他错误
             util.showToast(res.result?.message || '打卡失败');
             // 回滚 UI
             this.loadTodayHabits();
+            this.clearCheckingInId();
           }
         },
         fail: (err) => {
@@ -399,12 +435,15 @@ Page({
           console.error('logHabit 网络错误:', err);
           util.showToast('网络异常，数据已保存');
           // 不回滚 UI，因为本地记录已生效
+          // 解除节流标志，允许重试
+          this.clearCheckingInId();
         }
       });
     } catch (error) {
       console.error('打卡异常:', error);
       util.showToast('操作异常');
-      this.setData({ checkingInId: null });
+      // 发生异常时，使用统一清理函数
+      this.clearCheckingInId();
     }
   },
 
@@ -412,7 +451,10 @@ Page({
    * 长按撤销今日打卡（仅在已完成时可用）
    */
   async undoCheckIn (e) {
-    const { id, completed } = e.currentTarget.dataset;
+    const { id } = e.currentTarget.dataset;
+    // dataset 的属性可能为字符串，统一转换为布尔
+    let completed = e.currentTarget.dataset.completed;
+    completed = (completed === true || completed === 'true' || completed === 1 || completed === '1');
 
     if (!completed) {
       util.showToast('尚未完成，无法撤销');
@@ -496,6 +538,11 @@ Page({
       });
     }
   },
+
+  /**
+   * 阻止冒泡（modal 内部）
+   */
+  stopPropagation () { },
 
   /**
    * 隐藏弹窗

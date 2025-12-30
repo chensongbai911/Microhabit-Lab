@@ -292,6 +292,7 @@
   padding: 24rpx 12rpx 0 12rpx;
   border-bottom: 2rpx solid #f0f2f5;
   border-left: 2rpx solid #f0f2f5;
+  overflow: hidden;
 }
 
 .bar-item {

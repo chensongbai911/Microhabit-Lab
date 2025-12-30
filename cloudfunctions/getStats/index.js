@@ -2,7 +2,8 @@ const cloud = require('wx-server-sdk');
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
 const _ = db.command;
-const response = require('../utils/response');
+// 使用本地 response，避免云端缺失 utils 目录
+const response = require('./response');
 
 /**
  * 获取统计数据 - 优化版（Day 6）
@@ -33,8 +34,8 @@ exports.main = async (event, context) => {
       .where({ _openid: openid })
       .get();
 
-    const inProgress = habits.filter(h => h.status === 'in_progress').length;
-    const completed = habits.filter(h => h.status === 'finished').length;
+    const inProgress = habits.filter(h => (h.status === 'in_progress' || h.status === 'active' || !h.status)).length;
+    const completed = habits.filter(h => (h.status === 'finished' || h.status === 'completed')).length;
     const totalHabits = habits.length;
 
     // 计算本周完成率 + 趋势
@@ -113,12 +114,22 @@ function generateAdvice (weeklyRate, improved, improvementPercent, maxStreak) {
  */
 async function findBestHabit (openid, habits, startDate, endDate) {
   try {
-    const { data: logs } = await db.collection('habit_logs')
+    let { data: logs } = await db.collection('habit_logs')
       .where({
         _openid: openid,
         date: _.gte(startDate).and(_.lte(endDate))
       })
       .get();
+
+    if (!logs || logs.length === 0) {
+      // 兼容没有 date 字段的旧数据，使用 created_at 兜底
+      logs = (await db.collection('habit_logs')
+        .where({
+          _openid: openid,
+          created_at: _.gte(new Date(startDate)).and(_.lte(new Date(endDate)))
+        })
+        .get()).data || [];
+    }
 
     const habitCompletionMap = {};
     logs.forEach(log => {
@@ -153,12 +164,21 @@ async function findBestHabit (openid, habits, startDate, endDate) {
 async function buildTopHabits (openid, habits, startDate, endDate) {
   try {
     const _ = db.command;
-    const { data: logs } = await db.collection('habit_logs')
+    let { data: logs } = await db.collection('habit_logs')
       .where({
         _openid: openid,
         date: _.gte(startDate).and(_.lte(endDate))
       })
       .get();
+
+    if (!logs || logs.length === 0) {
+      logs = (await db.collection('habit_logs')
+        .where({
+          _openid: openid,
+          created_at: _.gte(new Date(startDate)).and(_.lte(new Date(endDate)))
+        })
+        .get()).data || [];
+    }
 
     if (!logs || logs.length === 0) return [];
 
@@ -217,12 +237,21 @@ async function buildTrend (openid, habits, rangeDays, todayStr) {
 
 async function buildTrendForPeriod (openid, habits, startDateStr, endDateStr) {
   // 拉取时间范围内的打卡记录
-  const { data: logs } = await db.collection('habit_logs')
+  let { data: logs } = await db.collection('habit_logs')
     .where({
       _openid: openid,
       date: _.gte(startDateStr).and(_.lte(endDateStr))
     })
     .get();
+
+  if (!logs || logs.length === 0) {
+    logs = (await db.collection('habit_logs')
+      .where({
+        _openid: openid,
+        created_at: _.gte(new Date(startDateStr)).and(_.lte(new Date(endDateStr)))
+      })
+      .get()).data || [];
+  }
 
   const logsList = logs || [];
   const rangeDays = Math.floor((new Date(endDateStr) - new Date(startDateStr)) / (1000 * 60 * 60 * 24)) + 1;

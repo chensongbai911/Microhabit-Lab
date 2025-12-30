@@ -1,0 +1,14 @@
+<view class="container">
+  <view class="page-header">
+    <view class="back" bindtap="goBack">‹ 返回</view>
+    <view class="title">隐私政策</view>
+  </view>
+
+  <scroll-view class="content" scroll-y="true">
+    <block wx:for="{{paragraphs}}" wx:key="index">
+      <view class="para" wx:if="{{paragraphs[index].type === 'h1'}}">{{paragraphs[index].text}}</view>
+      <view class="para sub" wx:elif="{{paragraphs[index].type === 'h2'}}">{{paragraphs[index].text}}</view>
+      <view class="para" wx:else>{{paragraphs[index].text}}</view>
+    </block>
+  </scroll-view>
+</view>

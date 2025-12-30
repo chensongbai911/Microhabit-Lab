@@ -1,40 +1,76 @@
-const { computeTier } = require('../../utils/tier.js');
-const analytics = require('../../utils/analytics.js');
-const api = require('../../utils/api.js');
+// 计算反馈等级
+function computeTier (streakDays = 0, isRecovery = false) {
+  if (isRecovery) return 'recovery';
+  if (streakDays >= 7) return 'day7';
+  if (streakDays >= 3) return 'day3';
+  return 'regular';
+}
 
 Page({
   data: {
     feedbackVisible: false,
     habitId: null,
-    tier: 'regular'
+    tier: 'regular',
+    loading: true,
+    habitInfo: null
   },
 
   async onLoad (options) {
     // 从参数或存储中获取首个习惯ID
-    const habitId = options?.habitId || null;
-    this.setData({ habitId });
+    let habitId = options?.habitId || null;
+    if (!habitId) {
+      try {
+        habitId = wx.getStorageSync('pendingFirstCheckinHabitId');
+      } catch (e) {
+        console.warn('获取habitId失败:', e);
+      }
+    }
 
-    // 若有 habitId，尝试获取详情以计算 tier
+    this.setData({ habitId, loading: true });
+
+    // 若有 habitId，尝试获取详情
     if (habitId) {
       try {
-        const { streakDays, isRecovery } = await api.getHabitDetailStd(habitId);
-        const tier = computeTier(streakDays, isRecovery);
-        this.setData({ tier });
-        analytics.firstCheckinDisplay(habitId, tier);
+        const res = await wx.cloud.callFunction({
+          name: 'getHabitDetail',
+          data: { user_habit_id: habitId }
+        });
+
+        if (res.result.code === 0 && res.result.data.habit) {
+          const habit = res.result.data.habit;
+          const tier = computeTier(habit.streak || 0, false);
+
+          this.setData({
+            tier,
+            habitInfo: {
+              name: habit.name,
+              trigger: habit.trigger,
+              target_times_per_day: habit.target_times_per_day,
+              icon: '✨'
+            },
+            loading: false
+          });
+        } else {
+          this.setData({ loading: false });
+        }
       } catch (e) {
-        // 保底为 regular
-        this.setData({ tier: 'regular' });
-        analytics.firstCheckinDisplay(habitId, 'regular');
+        console.error('获取习惯详情失败:', e);
+        this.setData({ loading: false });
       }
     } else {
-      analytics.firstCheckinDisplay('', 'regular');
+      this.setData({ loading: false });
     }
   },
 
   async onFirstCheckin () {
+    if (!this.data.habitId) {
+      wx.showToast({ title: '习惯信息异常，请重试', icon: 'none' });
+      return;
+    }
+
     wx.vibrateLong();
     try {
-      // 打卡逻辑（云函数）
+      // 打卡逻辑
       await wx.cloud.callFunction({
         name: 'logHabit',
         data: {
@@ -45,8 +81,8 @@ Page({
         }
       });
       this.setData({ feedbackVisible: true });
-      analytics.firstCheckinCompleted(this.data.habitId, this.data.tier);
     } catch (e) {
+      console.error('打卡失败:', e);
       wx.showToast({ title: '网络异常，请稍后重试', icon: 'none' });
     }
   },
@@ -59,6 +95,8 @@ Page({
       wx.setStorageSync('first_checkin_pending', false);
       wx.setStorageSync('first_checkin_done', true);
       wx.removeStorageSync('pendingFirstCheckinHabitId');
-    } catch (e) { }
+    } catch (e) {
+      console.warn('存储数据失败:', e);
+    }
   }
 });

@@ -101,24 +101,31 @@
       <!-- 提醒时间预览 -->
       <view class="form-item" wx:if="{{formData.trigger}}">
         <view class="reminder-preview-vertical">
-          <view class="reminder-main">
-            <view class="reminder-icon">🔔</view>
-            <view class="reminder-info">
-              <text class="reminder-label">我们会在
-                <picker mode="time" value="{{reminderTime}}" bindchange="onTimeChange" wx:if="{{formData.trigger === 'other'}}">
-                  <view class="reminder-time-picker-wrapper">
-                    <text class="reminder-time reminder-time-picker">{{reminderTime}}</text>
-                    <text class="picker-hint">✏️</text>
+          <view class="reminder-main-wrapper">
+            <view class="reminder-main">
+              <view class="reminder-icon">🔔</view>
+              <view class="reminder-info">
+                <text class="reminder-label">我们会在</text>
+                <!-- 推荐时机：显示固定时间 -->
+                <text class="reminder-time" wx:if="{{formData.trigger !== 'other'}}">{{reminderTime}}</text>
+                <!-- 自定义时机：显示可编辑时间 -->
+                <picker mode="time" value="{{reminderTime}}" bindchange="onTimeChange" wx:else>
+                  <view class="reminder-time-editable">
+                    <text class="reminder-time">{{reminderTime}}</text>
+                    <text class="edit-icon">✏️</text>
                   </view>
                 </picker>
-                <text class="reminder-time" wx:else>{{reminderTime}}</text>
-                提醒你完成习惯
-              </text>
+                <text class="reminder-label">提醒你完成习惯</text>
+              </view>
+            </view>
+            <!-- 自定义时机的提示 -->
+            <view class="time-edit-hint" wx:if="{{formData.trigger === 'other'}}">
+              <text class="hint-icon">👆</text>
+              <text class="hint-text">点击上方时间可修改</text>
             </view>
           </view>
           <view class="reminder-tip-vertical">
-            <text class="tip-text">基于"{{formData.trigger === 'other' ? formData.customTrigger : formData.trigger}}"自动安排</text>
-            <text class="tip-text" wx:if="{{formData.trigger === 'other'}}"> · 点击时间可修改</text>
+            <text class="tip-text">基于“{{formData.trigger === 'other' ? formData.customTrigger : formData.trigger}}”自动安排</text>
           </view>
         </view>
       </view>

@@ -1,7 +1,39 @@
 const cloud = require('wx-server-sdk');
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
-const response = require('../utils/response');
+
+// 响应工具函数
+const response = {
+  CODES: {
+    PARAM_ERROR: 1001,
+    NOT_FOUND: 1002,
+    EXCEED_LIMIT: 1003
+  },
+  success (data = null, message = '操作成功') {
+    return {
+      success: true,
+      code: 0,
+      message,
+      data
+    };
+  },
+  systemError (message = '系统错误，请稍后重试', error = null) {
+    return {
+      success: false,
+      code: -1,
+      message,
+      error: error?.message || error
+    };
+  },
+  businessError (code = 1000, message = '请求错误', data = null) {
+    return {
+      success: false,
+      code: Math.max(1001, code),
+      message,
+      data
+    };
+  }
+};
 
 /**
  * 创建习惯
@@ -13,7 +45,7 @@ const response = require('../utils/response');
 exports.main = async (event, context) => {
   const wxContext = cloud.getWXContext();
   const openid = wxContext.OPENID;
-  let { name, trigger, target_times_per_day = 1, template_id = null } = event;
+  let { name, trigger, target_times_per_day = 1, template_id = null, reminder = null } = event;
 
   try {
     // 参数校验
@@ -78,22 +110,35 @@ exports.main = async (event, context) => {
     const today = new Date().toISOString().split('T')[0];
     const now = new Date();
 
+    // 准备习惯数据
+    const habitData = {
+      _openid: openid,
+      template_id: template_id,
+      name: name,
+      trigger: trigger,
+      target_times_per_day: target_times_per_day,
+      start_date: today,
+      cycle_days: 21,
+      status: 'in_progress',
+      note: '',
+      streak: 0,
+      last_done_date: null,
+      created_at: now,
+      updated_at: now
+    };
+
+    // 如果有提醒配置，添加到数据中
+    if (reminder && typeof reminder === 'object') {
+      habitData.reminder = {
+        enabled: reminder.enabled !== false,
+        time: reminder.time || '09:00',
+        timeRange: reminder.timeRange || 'morning',
+        category: reminder.category || 'anytime'
+      };
+    }
+
     const result = await db.collection('user_habits').add({
-      data: {
-        _openid: openid,
-        template_id: template_id,
-        name: name,
-        trigger: trigger,
-        target_times_per_day: target_times_per_day,
-        start_date: today,
-        cycle_days: 21,
-        status: 'in_progress',
-        note: '',
-        streak: 0,
-        last_done_date: null,
-        created_at: now,
-        updated_at: now
-      }
+      data: habitData
     });
 
     return response.success(
