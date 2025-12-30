@@ -1,5 +1,6 @@
 <view class="mask" wx:if="{{visible}}" catchtap="onTapMask">
-  <view class="modal">
+  <view class="modal" catchtap="noop">
+    <view class="close" bindtap="dismiss">✕</view>
     <view class="content">
       <text class="emoji">{{copy.emoji}}</text>
       <text class="text">{{copy.text}}</text>

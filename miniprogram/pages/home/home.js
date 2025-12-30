@@ -332,9 +332,9 @@ Page({
         const newHabitId = (res.result?.data?.user_habit_id) || (res.result?.data?.habit_id) || '';
         if (newHabitId) {
           wx.setStorageSync('first_run_autostart_done', true);
-          wx.setStorageSync('pendingFirstCheckinHabitId', newHabitId);
-          wx.setStorageSync('first_checkin_pending', true);
-          wx.navigateTo({ url: `/pages/onboarding/first-checkin/first-checkin?habitId=${newHabitId}` });
+          wx.setStorageSync('first_checkin_pending', false);
+          wx.setStorageSync('pendingFirstCheckinHabitId', '');
+          util.showToast('已为你创建一个习惯，今天开始吧');
         }
       }
     } catch (e) {
@@ -376,7 +376,7 @@ Page({
         return habit;
       });
 
-      // 本地记录打卡习惯ID，供首卡页使用
+      // 本地记录打卡习惯ID
       wx.setStorageSync('lastCheckinHabitId', id);
 
       // 立即更新 UI（200ms 内反馈）
@@ -410,13 +410,10 @@ Page({
           checkType: 'home_checkin'
         },
         success: (res) => {
-          // 后端返回成功，跳首卡页显示反馈
+          // 后端返回成功：留在首页，用提示语+动画即可
           if (res.result && res.result.code === 0) {
             const data = res.result.data || {};
-            wx.navigateTo({
-              url: `/pages/onboarding/first-checkin/first-checkin?habitId=${id}&streak=${data.streak || 0}&feedbackTier=${data.feedbackTier || 'regular'}`
-            });
-            // 清理节流标志，允许后续打卡
+            util.showToast(data.message || '打卡成功');
             this.clearCheckingInId();
           } else if (res.result && res.result.code === 1002) {
             // 已完成目标
@@ -678,15 +675,10 @@ Page({
    * 首次体验优化：从首页直接跳转首卡页（若存在待引导的首卡）
    */
   checkFirstCheckinShortcut () {
+    // 取消首卡页面引导，留在首页直接提示
     try {
-      const pending = wx.getStorageSync('first_checkin_pending');
-      const done = wx.getStorageSync('first_checkin_done');
-      const habitId = wx.getStorageSync('pendingFirstCheckinHabitId');
-      if (pending && !done && habitId) {
-        wx.navigateTo({
-          url: `/pages/onboarding/first-checkin/first-checkin?habitId=${habitId}`
-        });
-      }
+      wx.setStorageSync('first_checkin_pending', false);
+      wx.setStorageSync('pendingFirstCheckinHabitId', '');
     } catch (e) { }
   },
 

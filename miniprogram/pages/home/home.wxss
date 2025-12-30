@@ -184,14 +184,15 @@
 
 .undo-btn {
   position: absolute;
-  top: 16rpx;
-  right: 16rpx;
+  top: 30rpx;
+  right: 24rpx;
   padding: 4rpx 12rpx;
-  font-size: 18rpx;
-  line-height: 1.1;
-  background-color: #fff7f7;
+  font-size: 22rpx;
+  font-weight: 500;
+  line-height: 1.2;
+  background-color: transparent;
   color: #b02a37;
-  border: 1rpx solid #f1b0b7;
+  border: none;
   border-radius: 10rpx;
   box-shadow: none;
   display: inline-flex;

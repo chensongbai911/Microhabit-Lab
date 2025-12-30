@@ -23,8 +23,10 @@ Component({
   },
   methods: {
     onTapMask () {
-      // 点击蒙层不关闭，避免误触
+      // 允许点击蒙层关闭，便于快速退出
+      this.dismiss();
     },
+    noop () { },
     dismiss () {
       this.triggerEvent('dismiss');
     },
