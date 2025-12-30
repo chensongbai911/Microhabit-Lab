@@ -87,6 +87,10 @@
 
     <!-- 设置入口 -->
     <view class="settings-list">
+      <view class="setting-item" bindtap="goToSettings">
+        <text>提醒与订阅</text>
+        <text class="arrow">›</text>
+      </view>
       <view class="setting-item">
         <text>隐私政策</text>
         <text class="arrow">›</text>

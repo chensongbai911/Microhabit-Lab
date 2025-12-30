@@ -1,0 +1,9 @@
+{
+  "name": "undoHabitLog",
+  "version": "1.0.0",
+  "description": "撤销今日打卡：habit_logs 次数减 1 或删除记录",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "^3.0.0"
+  }
+}

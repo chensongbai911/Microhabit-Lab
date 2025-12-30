@@ -5,7 +5,7 @@ Page({
   data: {
     // Day 6 - 结论优先
     weeklyRate: 0,          // 本周完成率
-    bestHabit: '微习惯',    // 最好的习惯
+    bestHabit: '',          // 最好的习惯
     improved: false,        // 是否改进
     improvementPercent: 0,  // 改进百分比
     advice: '',             // 建议文案
@@ -16,7 +16,7 @@ Page({
       maxStreak: 0
     },
     // 新增: 图表数据
-    weeklyData: [85, 78, 82, 80, 88, 90, 85],  // 7天完成率
+    weeklyData: [],        // 7天完成率
     weekDays: ['一', '二', '三', '四', '五', '六', '日'],
     topHabits: [],  // 完成率Top3习惯
     monthlyStats: {
@@ -47,13 +47,13 @@ Page({
         const data = res.result.data;
 
         // 处理图表数据
-        const weeklyData = data.weeklyData || [85, 78, 82, 80, 88, 90, 85];
+        const weeklyData = Array.isArray(data.weeklyData) ? data.weeklyData : [];
         const topHabits = this.processTopHabits(data.topHabits || []);
         const monthlyStats = data.monthlyStats || this.data.monthlyStats;
 
         this.setData({
           weeklyRate: data.weeklyRate || 0,
-          bestHabit: data.bestHabit || '微习惯',
+          bestHabit: data.bestHabit || (data.stats?.inProgress ? '继续坚持' : '暂无数据'),
           improved: data.improved || false,
           improvementPercent: data.improvementPercent || 0,
           advice: data.advice || '开始你的微习惯之旅吧！',
@@ -101,6 +101,12 @@ Page({
   goToMembership () {
     wx.navigateTo({
       url: '/pages/membership/membership'
+    });
+  },
+
+  goToSettings () {
+    wx.navigateTo({
+      url: '/pages/settings/settings'
     });
   }
 });

@@ -81,14 +81,19 @@
 
   <!-- 习惯列表 -->
   <view class="habits-list" wx:elif="{{habits.length > 0}}">
-    <view class="habit-card"
-          wx:for="{{habits}}"
-          wx:key="_id"
-          bindlongpress="showHabitMenu"
-          data-id="{{item._id}}">
+      <view class="habit-card"
+        wx:for="{{habits}}"
+        wx:key="_id"
+        bindlongpress="showHabitMenu"
+        data-id="{{item._id}}">
 
       <!-- 左侧完成状态 -->
-      <view class="habit-check" bindtap="handleCheckIn" data-id="{{item._id}}" data-completed="{{item.is_completed}}">
+      <view class="habit-check"
+        bindtap="handleCheckIn"
+        bindlongpress="undoCheckIn"
+        data-id="{{item._id}}"
+        data-completed="{{item.is_completed}}"
+        catchlongpress="true">
         <view class="check-circle {{item.is_completed ? 'checked' : ''}}">
           <text wx:if="{{item.is_completed}}" class="check-text">✓</text>
         </view>

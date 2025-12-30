@@ -37,11 +37,12 @@ exports.main = async (event, context) => {
     const completed = habits.filter(h => h.status === 'finished').length;
     const totalHabits = habits.length;
 
-    // 计算本周完成率
+    // 计算本周完成率 + 趋势
     const today = getToday();
     const weekStart = addDays(today, -6);
     const weeklyData = await buildTrend(openid, habits, 7, today);
     const weeklyRate = weeklyData.avgRate;
+    const weeklyTrend = (weeklyData.data || []).map(d => d.rate || 0);
 
     // 计算上周完成率（用于对比）
     const lastWeekEnd = addDays(today, -7);
@@ -55,6 +56,7 @@ exports.main = async (event, context) => {
 
     // 查找本周最好的习惯
     const bestHabit = await findBestHabit(openid, habits, weekStart, today);
+    const topHabits = await buildTopHabits(openid, habits, weekStart, today);
 
     // 计算最长连续天数
     const maxStreak = await calculateMaxStreakAcrossHabits(habits, openid);
@@ -69,6 +71,8 @@ exports.main = async (event, context) => {
         improved: improved,
         improvementPercent: improvementPercent,
         advice: advice,
+        weeklyData: weeklyTrend,
+        topHabits: topHabits,
         stats: {
           totalHabits: totalHabits,
           inProgress: inProgress,
@@ -140,6 +144,45 @@ async function findBestHabit (openid, habits, startDate, endDate) {
     return '微习惯';
   } catch (e) {
     return '微习惯';
+  }
+}
+
+/**
+ * 构建 Top3 习惯（按完成次数排序）
+ */
+async function buildTopHabits (openid, habits, startDate, endDate) {
+  try {
+    const _ = db.command;
+    const { data: logs } = await db.collection('habit_logs')
+      .where({
+        _openid: openid,
+        date: _.gte(startDate).and(_.lte(endDate))
+      })
+      .get();
+
+    if (!logs || logs.length === 0) return [];
+
+    const habitCompletionMap = {};
+    logs.forEach(log => {
+      habitCompletionMap[log.user_habit_id] = (habitCompletionMap[log.user_habit_id] || 0) + 1;
+    });
+
+    return Object.entries(habitCompletionMap)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3)
+      .map(([habitId, count], idx) => {
+        const matched = habits.find(h => h._id === habitId);
+        return {
+          _id: habitId,
+          name: matched?.name || '习惯',
+          completion_rate: Math.round((count / 7) * 100),
+          rank: idx + 1,
+          medal: ['🥇', '🥈', '🥉'][idx] || ''
+        };
+      });
+  } catch (e) {
+    console.error('buildTopHabits error:', e);
+    return [];
   }
 }
 

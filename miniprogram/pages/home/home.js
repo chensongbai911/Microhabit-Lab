@@ -185,11 +185,19 @@ Page({
             warmText = '正在形成';
           }
 
-          // 计算进度百分比
-          const progressPercent = Math.round((habit.today_times / habit.target_times_per_day) * 100);
+          // 后端字段兼容：将 doneTimesToday/isCompleted 映射为 today_times/is_completed
+          const todayTimes = Number(habit.today_times ?? habit.doneTimesToday ?? 0);
+          const targetPerDay = Number(habit.target_times_per_day ?? habit.targetTimesPerDay ?? habit.target_times ?? 1) || 1;
+          const isCompleted = habit.is_completed ?? habit.isCompleted ?? (todayTimes >= targetPerDay);
+
+          // 计算进度百分比（限定 0-100）
+          const progressPercent = Math.max(0, Math.min(100, Math.round((todayTimes / targetPerDay) * 100)));
 
           return {
             ...habit,
+            today_times: todayTimes,
+            target_times_per_day: targetPerDay,
+            is_completed: isCompleted,
             warmProgressText: warmText,
             progressPercent: progressPercent
           };
@@ -198,17 +206,27 @@ Page({
         // P0: 计算周期数据
         const cycleData = this.calculateCycleData(processedHabits);
 
+        // 兼容：后端计数缺失时，用前端计算的完成数
+        const computedCompleted = processedHabits.filter(h => h.is_completed).length;
+        const safeCompletedCount = Math.max(
+          computedCompleted,
+          typeof completedCount === 'number' && completedCount >= 0 ? completedCount : 0
+        );
+        const safeTotalCount = (typeof totalCount === 'number' && totalCount > 0)
+          ? totalCount
+          : processedHabits.length;
+
         // 检查是否全部完成
-        const allCompleted = totalCount > 0 && completedCount === totalCount;
+        const allCompleted = safeTotalCount > 0 && safeCompletedCount === safeTotalCount;
 
         // P1-1: 生成被肯定的顶部文案
         let topStatusText = '';
-        if (totalCount === 0) {
+        if (safeTotalCount === 0) {
           topStatusText = '今天，从小开始';
         } else if (allCompleted) {
           topStatusText = '今天已经对自己交代了';
-        } else if (completedCount > 0) {
-          topStatusText = `今天，也完成得不错`;
+        } else if (safeCompletedCount > 0) {
+          topStatusText = '今天，也完成得不错';
         } else {
           topStatusText = '今天，准备好了吗';
         }
@@ -216,9 +234,9 @@ Page({
         this.setData({
           habits: processedHabits,
           endedHabits: ended_habits,
-          completedCount: completedCount,
-          totalCount: totalCount,
-          progress: progress,
+          completedCount: safeCompletedCount,
+          totalCount: safeTotalCount,
+          progress: progress || Math.round((safeCompletedCount / (safeTotalCount || 1)) * 100),
           topStatusText: topStatusText,
           currentCycleDay: cycleData.currentDay,
           cyclePercentage: cycleData.percentage,
@@ -388,6 +406,49 @@ Page({
       util.showToast('操作异常');
       this.setData({ checkingInId: null });
     }
+  },
+
+  /**
+   * 长按撤销今日打卡（仅在已完成时可用）
+   */
+  async undoCheckIn (e) {
+    const { id, completed } = e.currentTarget.dataset;
+
+    if (!completed) {
+      util.showToast('尚未完成，无法撤销');
+      return;
+    }
+
+    wx.showModal({
+      title: '撤销今日打卡',
+      content: '确认撤销这条打卡吗？今日完成数将减 1',
+      confirmText: '撤销',
+      cancelText: '保留',
+      confirmColor: '#07C160',
+      success: async (res) => {
+        if (!res.confirm) return;
+
+        try {
+          util.showLoading('撤销中...');
+          const undoRes = await wx.cloud.callFunction({
+            name: 'undoHabitLog',
+            data: { user_habit_id: id }
+          });
+          util.hideLoading();
+
+          if (undoRes.result && undoRes.result.code === 0) {
+            util.showToast('已撤销');
+            this.loadTodayHabits();
+          } else {
+            util.showToast(undoRes.result?.message || '撤销失败');
+          }
+        } catch (error) {
+          util.hideLoading();
+          console.error('撤销失败:', error);
+          util.showToast('撤销失败');
+        }
+      }
+    });
   },
 
   /**
