@@ -30,12 +30,22 @@ exports.main = async (event, context) => {
     // 获取今天日期 YYYY-MM-DD
     const today = new Date().toISOString().split('T')[0];
 
-    // 查询所有进行中的习惯
+    // 查询所有进行中的习惯，兼容 status 缺省/active，start_date 缺省
+    const statusCond = _.or([
+      { status: 'in_progress' },
+      { status: 'active' },
+      { status: _.exists(false) }
+    ]);
+    const startCond = _.or([
+      { start_date: _.lte(today) },
+      { start_date: _.exists(false) }
+    ]);
+
     const { data: habits } = await db.collection('user_habits')
       .where({
         _openid: openid,
-        status: 'in_progress',
-        start_date: _.lte(today)
+        status: statusCond,
+        start_date: startCond
       })
       .orderBy('created_at', 'asc')
       .get();
@@ -45,7 +55,8 @@ exports.main = async (event, context) => {
     const activeHabits = [];
 
     for (let habit of habits) {
-      const endDate = calculateEndDate(habit.start_date, habit.cycle_days);
+      const startDate = normalizeDate(habit.start_date, habit.created_at, today);
+      const endDate = calculateEndDate(startDate, habit.cycle_days);
 
       if (today > endDate) {
         // 周期已结束
@@ -76,7 +87,9 @@ exports.main = async (event, context) => {
       const streak = await calculateStreak(db, habit._id);
 
       // 计算周期进度
-      const daysPassed = getDaysBetween(habit.start_date, today) + 1;
+      const daysPassed = getDaysBetween(startDate, today) + 1;
+
+      habit.start_date = startDate;
 
       habit.habitId = habit._id;  // 前端可能期望用 habitId
       habit.doneTimesToday = doneTimesToday;
@@ -172,5 +185,15 @@ function getDaysBetween (startDate, endDate) {
   const end = new Date(endDate);
   const diff = end.getTime() - start.getTime();
   return Math.floor(diff / (1000 * 60 * 60 * 24));
+}
+
+// 归一化日期，start_date 缺省时用 created_at 或今天
+function normalizeDate (startDate, createdAt, fallbackToday) {
+  if (startDate) return startDate;
+  if (createdAt) {
+    const d = new Date(createdAt);
+    return d.toISOString().split('T')[0];
+  }
+  return fallbackToday;
 }
 
