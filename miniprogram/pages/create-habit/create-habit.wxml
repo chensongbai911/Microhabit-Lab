@@ -48,13 +48,8 @@
 
       <!-- 触发器分类选择 -->
       <view class="form-item">
-        <!-- P1-2: 优化触发时间标题 -->
-        <view class="form-label">什么时候做最轻松？</view>
-        <view class="form-sublabel">先选一个不容易忘的时间点</view>
-        <view class="trigger-info-box">
-          <text class="info-icon">ℹ️</text>
-          <text class="info-text">选择你已有的日常活动作为触发点，比如"刷牙后"、"午餐时"会比"有空时"更容易坚持</text>
-        </view>
+        <view class="form-label">请选择一个常见时机（也可以自定义）</view>
+        <view class="form-sublabel">选择你已有的日常活动作为习惯时机，比如“刷牙后”“午餐前”更容易坚持</view>
         <view class="trigger-categories">
           <view wx:for="{{allCategories}}"
                 wx:key="key"
@@ -72,12 +67,12 @@
         <view class="trigger-list">
           <view wx:for="{{recommendedTriggers}}"
                 wx:key="value"
-                class="trigger-option {{formData.trigger === item.value ? 'selected' : ''}}"
+                class="trigger-option {{formData.trigger === item.value ? 'selected' : ''}} {{item.value === 'other' ? 'trigger-other' : ''}}"
                 data-value="{{item.value}}"
                 bindtap="handleTriggerSelect">
             <text class="trigger-icon">{{item.icon}}</text>
             <view class="trigger-info">
-              <text class="trigger-label">{{item.label}}</text>
+              <text class="trigger-label">{{item.value === 'other' ? '自定义时机' : item.label}}</text>
               <text class="trigger-time">{{item.time}}</text>
             </view>
             <!-- 完成率数据显示 -->
@@ -93,10 +88,10 @@
         <view class="custom-trigger" wx:if="{{formData.trigger === 'other'}}">
           <view class="custom-trigger-hint">
             <text class="hint-icon">💡</text>
-            <text class="hint-text">例如：刷牙后、午餐前、上床前</text>
+            <text class="hint-text">没有合适的？请填写你自己的习惯时机</text>
           </view>
           <input class="form-input"
-                 placeholder="输入自定义触发器（如：刷牙后）"
+                 placeholder="如：刷牙后、下班后"
                  value="{{formData.customTrigger}}"
                  bindinput="handleCustomTriggerInput"
                  maxlength="20" />
@@ -105,21 +100,31 @@
 
       <!-- 提醒时间预览 -->
       <view class="form-item" wx:if="{{formData.trigger}}">
-        <view class="reminder-preview">
-          <view class="reminder-icon">🔔</view>
-          <view class="reminder-info">
-            <text class="reminder-label">系统会在</text>
-            <text class="reminder-time">{{reminderTime}}</text>
-            <text class="reminder-label">提醒你</text>
+        <view class="reminder-preview-vertical">
+          <view class="reminder-main">
+            <view class="reminder-icon">🔔</view>
+            <view class="reminder-info">
+              <text class="reminder-label">我们会在
+                <picker mode="time" value="{{reminderTime}}" bindchange="onTimeChange" wx:if="{{formData.trigger === 'other'}}">
+                  <view class="reminder-time-picker-wrapper">
+                    <text class="reminder-time reminder-time-picker">{{reminderTime}}</text>
+                    <text class="picker-hint">✏️</text>
+                  </view>
+                </picker>
+                <text class="reminder-time" wx:else>{{reminderTime}}</text>
+                提醒你完成习惯
+              </text>
+            </view>
           </view>
-          <view class="reminder-tip">
+          <view class="reminder-tip-vertical">
             <text class="tip-text">基于"{{formData.trigger === 'other' ? formData.customTrigger : formData.trigger}}"自动安排</text>
+            <text class="tip-text" wx:if="{{formData.trigger === 'other'}}"> · 点击时间可修改</text>
           </view>
         </view>
       </view>
 
       <!-- 执行频次 -->
-      <view class="form-item">
+      <view class="form-item frequency-section">
         <view class="form-label">每天执行几次?</view>
         <view class="frequency-options">
           <view wx:for="{{frequencyOptions}}"
@@ -129,7 +134,7 @@
                 data-value="{{item}}">
             <view class="frequency-main">每天{{item}}次</view>
             <!-- P0-1: 强化每天1次=最优 -->
-            <view class="frequency-sub" wx:if="{{item === 1}}">（最容易坚持）</view>
+            <view class="frequency-sub" wx:if="{{item === 1}}">最容易坚持</view>
           </view>
         </view>
 
@@ -140,12 +145,11 @@
         </view>
 
         <!-- 完成率预测 -->
-        <view class="frequency-impact">
-          <!-- P1-1: 预期完成率文案重写 -->
-          <view class="impact-item">
+        <view class="frequency-impact" wx:if="{{completionRateText}}">
+          <view class="impact-content">
             <text class="impact-label-new">{{completionRateText}}</text>
+            <text class="impact-tips">{{frequencyImpactTips}}</text>
           </view>
-          <text class="impact-tips">{{frequencyImpactTips}}</text>
         </view>
 
         <!-- 影响分析警告 (编辑模式) -->

@@ -36,7 +36,7 @@ Page({
       customTrigger: '',
       target_times_per_day: 1
     },
-    reminderTime: '', // 根据触发器自动生成的提醒时间
+    reminderTime: '12:00', // 默认提醒时间
     canSubmit: false,
     frequencyOptions: [1, 2, 3, 4],
     currentRate: 85 // 当前习惯的完成率(编辑时使用)
@@ -252,13 +252,15 @@ Page({
 
     // 获取最终的触发器文案
     let finalTrigger = value;
+    let reminderTime = '';
     if (value === 'other') {
-      // 如果选择自定义，稍后从 customTrigger 中获取
+      // 自定义时机，给一个默认时间
       finalTrigger = this.data.formData.customTrigger || '';
+      reminderTime = this.data.reminderTime || '12:00';
+    } else {
+      // 推荐时机，自动推算
+      reminderTime = triggerTime.getTriggerReminderTime(finalTrigger);
     }
-
-    // 计算提醒时间
-    const reminderTime = triggerTime.getTriggerReminderTime(finalTrigger);
 
     this.setData({
       'formData.trigger': value,
@@ -276,9 +278,11 @@ Page({
   handleCustomTriggerInput (e) {
     const customTrigger = e.detail.value;
 
-    // 如果是自定义触发器，同时更新提醒时间
+    // 如果是自定义触发器，保持用户自选时间，否则用智能推算
     let reminderTime = this.data.reminderTime;
-    if (this.data.formData.trigger === 'other' && customTrigger) {
+    if (this.data.formData.trigger === 'other' && !reminderTime) {
+      reminderTime = '12:00';
+    } else if (this.data.formData.trigger !== 'other' && customTrigger) {
       reminderTime = triggerTime.getTriggerReminderTime(customTrigger);
     }
 
