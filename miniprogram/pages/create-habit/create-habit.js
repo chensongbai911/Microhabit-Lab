@@ -4,6 +4,7 @@ const permission = require('../../utils/permission.js');
 const constants = require('../../utils/constants.js');
 const triggerRecommend = require('../../utils/triggerRecommend.js');
 const impactPredictor = require('../../utils/impactPredictor.js');
+const triggerTime = require('../../utils/triggerTime.js');
 
 Page({
   data: {
@@ -35,6 +36,7 @@ Page({
       customTrigger: '',
       target_times_per_day: 1
     },
+    reminderTime: '', // 根据触发器自动生成的提醒时间
     canSubmit: false,
     frequencyOptions: [1, 2, 3, 4],
     currentRate: 85 // 当前习惯的完成率(编辑时使用)
@@ -247,8 +249,20 @@ Page({
    */
   handleTriggerSelect (e) {
     const value = e.currentTarget.dataset.value;
+
+    // 获取最终的触发器文案
+    let finalTrigger = value;
+    if (value === 'other') {
+      // 如果选择自定义，稍后从 customTrigger 中获取
+      finalTrigger = this.data.formData.customTrigger || '';
+    }
+
+    // 计算提醒时间
+    const reminderTime = triggerTime.getTriggerReminderTime(finalTrigger);
+
     this.setData({
-      'formData.trigger': value
+      'formData.trigger': value,
+      reminderTime: reminderTime
     }, () => {
       this.validateForm();
       // 分析触发器变化的影响
@@ -260,8 +274,17 @@ Page({
    * 自定义触发器输入
    */
   handleCustomTriggerInput (e) {
+    const customTrigger = e.detail.value;
+
+    // 如果是自定义触发器，同时更新提醒时间
+    let reminderTime = this.data.reminderTime;
+    if (this.data.formData.trigger === 'other' && customTrigger) {
+      reminderTime = triggerTime.getTriggerReminderTime(customTrigger);
+    }
+
     this.setData({
-      'formData.customTrigger': e.detail.value
+      'formData.customTrigger': customTrigger,
+      reminderTime: reminderTime
     }, () => {
       this.validateForm();
     });
@@ -392,12 +415,22 @@ Page({
     try {
       util.showLoading('创建中...');
 
+      // 生成该习惯的提醒配置
+      const reminderConfig = triggerTime.generateReminderConfig(finalTrigger, name.trim());
+
       const res = await wx.cloud.callFunction({
         name: 'createHabit',
         data: {
           name: name.trim(),
           trigger: finalTrigger,
-          target_times_per_day: target_times_per_day
+          target_times_per_day: target_times_per_day,
+          // 提醒配置
+          reminder: {
+            enabled: true,
+            time: reminderConfig.time,  // 根据触发器自动生成的提醒时间
+            timeRange: reminderConfig.timeRange,
+            category: reminderConfig.category
+          }
         }
       });
 

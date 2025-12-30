@@ -103,7 +103,7 @@ function predictImpact (changes, currentRate = 85, currentFrequency = 1) {
  */
 function getImpactColor (severity = 'info') {
   const colors = {
-    info: { bg: '#E0E7FF', text: '#667eea', icon: '💡' },
+    info: { bg: '#D1F4E0', text: '#07C160', icon: '💡' },
     warning: { bg: '#FEF3C7', text: '#D97706', icon: '⚠️' },
     danger: { bg: '#FEE2E2', text: '#DC2626', icon: '⛔' }
   };

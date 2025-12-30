@@ -71,6 +71,23 @@ Page({
   },
 
   /**
+   * 获取激励文案 - 根据完成情况动态选择
+   */
+  getEncouragementText () {
+    const { completedCount, totalCount } = this.data;
+
+    if (totalCount === 0) {
+      return '今天，从小开始';
+    } else if (completedCount === totalCount && totalCount > 0) {
+      return '太棒了！今天已经完成了';
+    } else if (completedCount > 0) {
+      return `坚持下去，还有 ${totalCount - completedCount} 个微习惯等你！`;
+    } else {
+      return '加油！让我们开始今天的微习惯吧';
+    }
+  },
+
+  /**
    * Phase 3新增: 加载推荐习惯
    */
   loadRecommendedHabits (userHabits = []) {
@@ -123,9 +140,13 @@ Page({
             warmText = '正在形成';
           }
 
+          // 计算进度百分比
+          const progressPercent = Math.round((habit.today_times / habit.target_times_per_day) * 100);
+
           return {
             ...habit,
-            warmProgressText: warmText
+            warmProgressText: warmText,
+            progressPercent: progressPercent
           };
         });
 
@@ -154,6 +175,11 @@ Page({
           loading: false,
           allCompleted: allCompleted,
           showCompletedAnimation: allCompleted
+        });
+
+        // 更新激励文案
+        this.setData({
+          encouragementText: this.getEncouragementText()
         });
 
         // 全部完成动画 3 秒后消失
@@ -254,6 +280,13 @@ Page({
 
       // 立即更新 UI（200ms 内反馈）
       this.setData({ habits: updatedHabits });
+
+      // 更新完成数
+      const newCompletedCount = updatedHabits.filter(h => h.is_completed).length;
+      this.setData({
+        completedCount: newCompletedCount,
+        encouragementText: this.getEncouragementText()
+      });
 
       // P0-1: 添加情绪反馈（震动 + 浮层文案）
       wx.vibrateShort({ type: 'light' });
@@ -499,6 +532,49 @@ Page({
   },
 
   /**
+   * 导航到设置页
+   */
+  goToSettings () {
+    wx.navigateTo({
+      url: '/pages/settings/settings'
+    });
+  },
+
+  /**
+   * 返回按钮(如果有上一页就返回，否则跳到习惯库)
+   */
+  goBack () {
+    const pages = getCurrentPages();
+    if (pages.length > 1) {
+      wx.navigateBack();
+    } else {
+      this.goToHabits();
+    }
+  },
+
+  /**
+   * 显示更多选项
+   */
+  showMore () {
+    wx.showActionSheet({
+      itemList: ['设置', '关于', '反馈'],
+      success: (res) => {
+        if (res.tapIndex === 0) {
+          this.goToSettings();
+        } else if (res.tapIndex === 1) {
+          wx.navigateTo({
+            url: '/pages/about/about'
+          });
+        } else if (res.tapIndex === 2) {
+          wx.navigateTo({
+            url: '/pages/feedback/feedback'
+          });
+        }
+      }
+    });
+  },
+
+  /**
    * P0-3: 检测刚创建的习惯,显示温暖提示(一次性)
    */
   checkJustCreatedHabit () {
@@ -586,7 +662,7 @@ Page({
       content: `删除"${habitName}"\n已进行${completedDays}/${totalDays}天\n\n数据将保存在「已完成」分区,无法恢复`,
       confirmText: '确认删除',
       cancelText: '取消',
-      confirmColor: '#FF6B9D',
+      confirmColor: '#07C160',
       success: (res) => {
         if (res.confirm) {
           this.performDelete(habitId);

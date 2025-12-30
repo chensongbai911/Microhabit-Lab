@@ -13,7 +13,7 @@
           <text class="label-text">开启提醒</text>
           <text class="label-hint" bindtap="showReminderGuide">查看说明</text>
         </view>
-        <switch checked="{{reminderEnabled}}" bindchange="toggleReminder" color="#FF6B9D" />
+        <switch checked="{{reminderEnabled}}" bindchange="toggleReminder" color="#07C160" />
       </view>
     </view>
 

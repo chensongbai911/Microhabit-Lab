@@ -290,7 +290,7 @@ Page({
       content: `暂停"${habit.name}"\n\n暂停不会清零，也不算失败\n随时可以在详情页恢复`,
       confirmText: '暂停',
       cancelText: '取消',
-      confirmColor: '#10b981',
+      confirmColor: '#07C160',
       success: (res) => {
         if (res.confirm) {
           this.performPause(habitId);

@@ -3,17 +3,17 @@
 :root {
   /* ===== 颜色系统 ===== */
 
-  /* 主色 - 柔和绿 */
-  --primary-color: #4CB8A5;
-  --primary-light: #6FCBB9;
-  --primary-dark: #3A9B8A;
-  --primary-bg: rgba(76, 184, 165, 0.08);
+  /* 主色 - 微信绿 */
+  --primary-color: #07C160;
+  --primary-light: #2AD47D;
+  --primary-dark: #059048;
+  --primary-bg: rgba(7, 193, 96, 0.08);
 
-  /* 辅助色 - 柔和蓝 */
-  --secondary-color: #4C9BFF;
-  --secondary-light: #6FADFF;
-  --secondary-dark: #3A82E6;
-  --secondary-bg: rgba(76, 155, 255, 0.08);
+  /* 辅助色 - 浅绿 */
+  --secondary-color: #2AD47D;
+  --secondary-light: #52E095;
+  --secondary-dark: #07C160;
+  --secondary-bg: rgba(42, 212, 125, 0.08);
 
   /* 背景色 */
   --bg-color: #F7F8FA;

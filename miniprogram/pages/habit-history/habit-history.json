@@ -1,6 +1,6 @@
 {
   "navigationBarTitleText": "变更历史",
-  "navigationBarBackgroundColor": "#667eea",
+  "navigationBarBackgroundColor": "#07C160",
   "navigationBarTextStyle": "white",
   "usingComponents": {},
   "enablePullDownRefresh": true,

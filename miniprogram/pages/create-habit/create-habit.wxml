@@ -50,7 +50,11 @@
       <view class="form-item">
         <!-- P1-2: 优化触发时间标题 -->
         <view class="form-label">什么时候做最轻松？</view>
-        <view class="form-sublabel">先选一个不容易忘的</view>
+        <view class="form-sublabel">先选一个不容易忘的时间点</view>
+        <view class="trigger-info-box">
+          <text class="info-icon">ℹ️</text>
+          <text class="info-text">选择你已有的日常活动作为触发点，比如"刷牙后"、"午餐时"会比"有空时"更容易坚持</text>
+        </view>
         <view class="trigger-categories">
           <view wx:for="{{allCategories}}"
                 wx:key="key"
@@ -87,11 +91,30 @@
 
         <!-- 自定义触发器输入 -->
         <view class="custom-trigger" wx:if="{{formData.trigger === 'other'}}">
+          <view class="custom-trigger-hint">
+            <text class="hint-icon">💡</text>
+            <text class="hint-text">例如：刷牙后、午餐前、上床前</text>
+          </view>
           <input class="form-input"
-                 placeholder="输入自定义触发器"
+                 placeholder="输入自定义触发器（如：刷牙后）"
                  value="{{formData.customTrigger}}"
                  bindinput="handleCustomTriggerInput"
                  maxlength="20" />
+        </view>
+      </view>
+
+      <!-- 提醒时间预览 -->
+      <view class="form-item" wx:if="{{formData.trigger}}">
+        <view class="reminder-preview">
+          <view class="reminder-icon">🔔</view>
+          <view class="reminder-info">
+            <text class="reminder-label">系统会在</text>
+            <text class="reminder-time">{{reminderTime}}</text>
+            <text class="reminder-label">提醒你</text>
+          </view>
+          <view class="reminder-tip">
+            <text class="tip-text">基于"{{formData.trigger === 'other' ? formData.customTrigger : formData.trigger}}"自动安排</text>
+          </view>
         </view>
       </view>
 
