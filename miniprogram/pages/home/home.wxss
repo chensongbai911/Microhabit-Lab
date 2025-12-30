@@ -398,3 +398,189 @@
   border-radius: 4rpx;
   transition: width 0.3s ease;
 }
+
+/* P0: 周期计时器卡片样式 */
+.cycle-timer-card {
+  margin: 24rpx 32rpx 32rpx;
+  padding: 32rpx;
+  background: linear-gradient(135deg, #07C160 0%, #2AD47D 100%);
+  border-radius: 24rpx;
+  box-shadow: 0 4rpx 24rpx rgba(7, 193, 96, 0.2);
+  color: white;
+  overflow: hidden;
+  position: relative;
+}
+
+/* 背景装饰 */
+.cycle-timer-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 400rpx;
+  height: 400rpx;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.cycle-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32rpx;
+  position: relative;
+  z-index: 1;
+}
+
+.cycle-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.cycle-badge {
+  background: #FFD700;
+  color: #059048;
+  padding: 8rpx 16rpx;
+  border-radius: 20rpx;
+  font-size: 22rpx;
+  font-weight: 600;
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+/* 周期主显示 */
+.cycle-main {
+  display: flex;
+  align-items: center;
+  gap: 32rpx;
+  margin-bottom: 28rpx;
+  position: relative;
+  z-index: 1;
+}
+
+.cycle-number {
+  display: flex;
+  align-items: baseline;
+  gap: 8rpx;
+}
+
+.current-day {
+  font-size: 72rpx;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.total-day {
+  font-size: 32rpx;
+  font-weight: 400;
+  opacity: 0.9;
+}
+
+/* 周期进度条 */
+.cycle-progress-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.cycle-progress-bar {
+  width: 100%;
+  height: 12rpx;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 6rpx;
+  overflow: hidden;
+}
+
+.cycle-progress-fill {
+  height: 100%;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 6rpx;
+  transition: width 0.4s cubic-bezier(0.23, 1, 0.320, 1);
+}
+
+.cycle-percentage {
+  font-size: 28rpx;
+  font-weight: 600;
+  text-align: right;
+}
+
+/* 周期状态文案 */
+.cycle-status-text {
+  font-size: 28rpx;
+  margin-bottom: 28rpx;
+  line-height: 1.5;
+  padding: 16rpx 20rpx;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 12rpx;
+  position: relative;
+  z-index: 1;
+}
+
+.cycle-status-text view {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+/* 周期详情数据 */
+.cycle-details {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16rpx;
+  position: relative;
+  z-index: 1;
+}
+
+.detail-item {
+  background: rgba(255, 255, 255, 0.15);
+  padding: 16rpx;
+  border-radius: 16rpx;
+  text-align: center;
+  backdrop-filter: blur(10px);
+}
+
+.detail-label {
+  font-size: 22rpx;
+  opacity: 0.85;
+  margin-bottom: 8rpx;
+  display: block;
+}
+
+.detail-value {
+  font-size: 36rpx;
+  font-weight: 700;
+  display: block;
+}
+
+/* 响应式调整 */
+@media (max-width: 375px) {
+  .cycle-main {
+    gap: 20rpx;
+  }
+
+  .current-day {
+    font-size: 56rpx;
+  }
+
+  .cycle-title {
+    font-size: 28rpx;
+  }
+
+  .detail-value {
+    font-size: 28rpx;
+  }
+}
+

@@ -1,14 +1,28 @@
 <view class="container">
   <view class="page-container" wx:if="{{!loading && habit}}">
-    <!-- 顶部信息 -->
-    <view class="header-card">
-      <view class="title">{{habit.name}}</view>
-      <view class="meta">
-        <text class="tag">{{categoryName || '习惯'}}</text>
-        <text class="tag" wx:if="{{habit.trigger || habit.default_trigger}}">触发器：{{habit.trigger || habit.default_trigger}}</text>
-        <text class="tag" wx:if="{{habit.target_times_per_day}}">目标/天：{{habit.target_times_per_day}}</text>
+    <!-- 简化头部：标题 + 状态 + 单行元数据 -->
+    <view class="header-card {{isPaused ? 'paused' : ''}}">
+      <view class="header-row">
+        <view class="title">{{habit.name}}</view>
+        <view class="status-badge {{isPaused ? 'paused' : ''}}">
+          {{isPaused ? '⏸️ 已暂停' : '✓ 进行中'}}
+        </view>
       </view>
-      <view class="desc" wx:if="{{habit.description}}">{{habit.description}}</view>
+      <view class="meta-line">
+        <text class="meta-item" wx:if="{{habit.target_times_per_day}}">目标：{{habit.target_times_per_day}}次/天</text>
+        <text class="meta-divider">·</text>
+        <text class="meta-item">提醒：{{habit.trigger || habit.default_trigger || '未设置'}}</text>
+      </view>
+      <view class="pause-hint" wx:if="{{isPaused}}">⏸️ 已暂停，恢复后继续当前进度</view>
+    </view>
+
+    <!-- 主操作：暂停/继续（全宽） -->
+    <view class="primary-action">
+      <button
+        class="btn-large {{isPaused ? 'resume' : 'pause'}}"
+        bindtap="togglePauseHabit">
+        {{isPaused ? '继续陪伴' : '暂时放下'}}
+      </button>
     </view>
 
     <!-- 统计卡片 -->
@@ -18,8 +32,8 @@
         <view class="stat-label">完成率</view>
       </view>
       <view class="stat-card">
-        <view class="stat-value">{{stats.completed_days}} / {{stats.total_days}}</view>
-        <view class="stat-label">已完成天数</view>
+        <view class="stat-value">{{stats.completed_days}}/{{stats.total_days}}</view>
+        <view class="stat-label">已完成</view>
       </view>
       <view class="stat-card">
         <view class="stat-value">{{stats.max_streak}}</view>
@@ -32,6 +46,21 @@
       <view class="progress-text">第 {{stats.progress.current}} / {{stats.progress.total}} 天</view>
       <view class="progress-bar">
         <view class="progress-inner" style="width: {{stats.progress.percentage}}%;"></view>
+      </view>
+    </view>
+
+    <!-- 快速编辑（仅2行：目标 + 提醒） -->
+    <view class="quick-edit-card">
+      <view class="edit-item" bindtap="showEditTargetModal">
+        <view class="edit-label">每日目标次数</view>
+        <view class="edit-value">{{habit.target_times_per_day || 1}} 次</view>
+        <view class="edit-arrow">›</view>
+      </view>
+      <view class="divider"></view>
+      <view class="edit-item" bindtap="showEditReminderModal">
+        <view class="edit-label">提醒时间</view>
+        <view class="edit-value">{{habit.trigger || habit.default_trigger || '未设置'}}</view>
+        <view class="edit-arrow">›</view>
       </view>
     </view>
 
@@ -58,10 +87,6 @@
           <view class="legend-dot today"></view>
           <text>今天</text>
         </view>
-        <view class="legend-item">
-          <view class="legend-dot normal"></view>
-          <text>未完成</text>
-        </view>
       </view>
     </view>
 
@@ -71,19 +96,14 @@
       <view class="advice-text">{{advice}}</view>
     </view>
 
-    <!-- 操作区域 -->
-    <view class="actions-card">
-      <view class="action-buttons">
-        <button class="btn-history" bindtap="viewHistory">
-          📋 查看历史
-        </button>
-        <button class="btn-edit" bindtap="editHabit">
-          ✏️ 编辑
-        </button>
-        <button class="btn-delete" bindtap="deleteHabit">
-          🗑️ 删除
-        </button>
-      </view>
+    <!-- 次级操作按钮（查看历史 | 删除） -->
+    <view class="secondary-actions">
+      <button class="btn-secondary" bindtap="viewHistory">
+        📚 查看历史
+      </button>
+      <button class="btn-secondary btn-danger" bindtap="deleteHabit">
+        🗑️ 删除习惯
+      </button>
     </view>
 
     <!-- 日期详情弹窗 -->
@@ -93,7 +113,6 @@
         <view class="modal-completion">
           <view class="completion-item">
             <view class="completion-label">完成情况</view>
-            <!-- P2: 移除负面文案，使用更中性的表述 -->
             <view class="completion-value">
               {{selectedDateData.completed ? '✓ 已完成' : '当日休息'}}
             </view>
@@ -104,6 +123,61 @@
           </view>
         </view>
         <button class="btn btn-primary" bindtap="closeDateModal">关闭</button>
+      </view>
+    </view>
+
+    <!-- 编辑每日目标次数弹窗 -->
+    <view class="modal-mask" wx:if="{{showEditTargetModal}}" catchtap="closeEditTargetModal">
+      <view class="edit-modal" catchtap>
+        <view class="modal-title">设置每日目标次数</view>
+        <view class="modal-description">这个习惯每天要完成多少次？</view>
+
+        <view class="number-picker">
+          <button class="number-btn" data-action="decrease" bindtap="updateTargetTimes">−</button>
+          <view class="number-display">{{editingTargetTimes}}</view>
+          <button class="number-btn" data-action="increase" bindtap="updateTargetTimes">+</button>
+        </view>
+
+        <view class="modal-tip">💡 修改后，系统会根据新的目标调整您的完成率计算</view>
+
+        <view class="modal-buttons">
+          <button class="btn btn-cancel" bindtap="closeEditTargetModal">取消</button>
+          <button class="btn btn-primary" bindtap="saveTargetTimes">保存</button>
+        </view>
+      </view>
+    </view>
+
+    <!-- 编辑提醒时间弹窗 -->
+    <view class="modal-mask" wx:if="{{showEditReminderModal}}" catchtap="closeEditReminderModal">
+      <view class="edit-modal" catchtap>
+        <view class="modal-title">设置提醒时间</view>
+        <view class="modal-description">在什么时候提醒你完成这个习惯？</view>
+
+        <view class="input-box">
+          <input
+            class="modal-input"
+            placeholder="例如：刷牙后、午餐前、上床前"
+            placeholderClass="placeholder"
+            value="{{editingReminder}}"
+            bindinput="onReminderInput"
+            maxlength="20"
+          />
+        </view>
+
+        <view class="reminder-examples">
+          <view class="example-title">常见提醒：</view>
+          <view class="example-tags">
+            <text class="tag">刷牙后</text>
+            <text class="tag">午餐前</text>
+            <text class="tag">下午3点</text>
+            <text class="tag">睡前</text>
+          </view>
+        </view>
+
+        <view class="modal-buttons">
+          <button class="btn btn-cancel" bindtap="closeEditReminderModal">取消</button>
+          <button class="btn btn-primary" bindtap="saveReminder">保存</button>
+        </view>
       </view>
     </view>
   </view>

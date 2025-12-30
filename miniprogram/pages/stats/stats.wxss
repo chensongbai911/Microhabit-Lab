@@ -4,7 +4,7 @@
   padding: 32rpx;
 }
 
-/* 主结论卡�?*/
+/* 主结论卡�?*/
 .conclusion-card {
   background: linear-gradient(135deg, #07C160 0%, #059048 100%);
   border-radius: 24rpx;
@@ -255,6 +255,192 @@
   }
   to {
     opacity: 1;
+  }
+}
+
+/* 图表卡片 - 7日完成率趋势 */
+.chart-card {
+  background: white;
+  border-radius: 24rpx;
+  padding: 32rpx 28rpx;
+  margin-bottom: 28rpx;
+  box-shadow: 0 2rpx 16rpx rgba(15, 23, 42, 0.06);
+}
+
+.chart-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 32rpx;
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.chart-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.chart-bars {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  height: 240rpx;
+  gap: 16rpx;
+  padding: 24rpx 12rpx 0 12rpx;
+  border-bottom: 2rpx solid #f0f2f5;
+  border-left: 2rpx solid #f0f2f5;
+}
+
+.bar-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  gap: 12rpx;
+}
+
+.bar-bar {
+  width: 100%;
+  background: linear-gradient(135deg, #07C160 0%, #2AD47D 100%);
+  border-radius: 12rpx 12rpx 0 0;
+  min-height: 20rpx;
+  transition: all 0.3s ease;
+  box-shadow: 0 2rpx 8rpx rgba(7, 193, 96, 0.2);
+  position: relative;
+}
+
+.bar-bar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.2), transparent);
+  border-radius: 12rpx 12rpx 0 0;
+}
+
+.bar-label {
+  font-size: 24rpx;
+  color: var(--text-tertiary);
+  font-weight: 500;
+}
+
+.bar-value {
+  font-size: 22rpx;
+  color: var(--text-secondary);
+  font-weight: 600;
+  color: #07C160;
+}
+
+/* 排名卡片 - Top 3 最佳习惯 */
+.ranking-card {
+  background: white;
+  border-radius: 24rpx;
+  padding: 32rpx 28rpx;
+  margin-bottom: 28rpx;
+  box-shadow: 0 2rpx 16rpx rgba(15, 23, 42, 0.06);
+}
+
+.ranking-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 24rpx;
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.ranking-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.ranking-item {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  padding: 20rpx 24rpx;
+  background: linear-gradient(135deg, rgba(7, 193, 96, 0.05) 0%, rgba(42, 212, 125, 0.05) 100%);
+  border-radius: 16rpx;
+  border-left: 4rpx solid #07C160;
+  transition: all 0.3s ease;
+}
+
+.ranking-item:active {
+  transform: translateX(4rpx);
+  box-shadow: 0 2rpx 8rpx rgba(7, 193, 96, 0.15);
+}
+
+.medal-emoji {
+  font-size: 48rpx;
+  line-height: 1;
+  min-width: 56rpx;
+  text-align: center;
+}
+
+.ranking-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+
+.ranking-name {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.ranking-rate {
+  font-size: 24rpx;
+  color: var(--text-secondary);
+}
+
+.ranking-badge {
+  background: linear-gradient(135deg, #07C160 0%, #059048 100%);
+  color: white;
+  padding: 8rpx 16rpx;
+  border-radius: 12rpx;
+  font-size: 22rpx;
+  font-weight: 600;
+  min-width: 72rpx;
+  text-align: center;
+}
+
+.ranking-empty {
+  text-align: center;
+  padding: 60rpx 32rpx;
+  color: var(--text-tertiary);
+}
+
+.ranking-empty-icon {
+  font-size: 72rpx;
+  margin-bottom: 16rpx;
+  opacity: 0.5;
+}
+
+.ranking-empty-text {
+  font-size: 28rpx;
+}
+
+/* 图表和排名的响应式调整 */
+@media (max-width: 375px) {
+  .chart-bars {
+    height: 200rpx;
+  }
+
+  .bar-bar {
+    min-height: 16rpx;
+  }
+
+  .bar-label {
+    font-size: 20rpx;
   }
 }
 

@@ -11,6 +11,18 @@ Page({
     paying: false,
     noMerchant: false,
     noMerchantMsg: '未配置商户号，暂不可开通。请在云开发控制台绑定商户号/密钥后重试。',
+    habitCount: 0,
+    maxFreeHabits: 3,
+    memberLimit: 20,
+    reportTier: '基础版',
+    retentionDays: '90天',
+    currentLimits: [],
+    upgradeHighlights: [
+      '无限创建习惯 (上限20)',
+      'AI智能报告',
+      '永久数据保留',
+      '高级分析工具'
+    ],
     comparisonTable: [
       { feature: '创建习惯数量', free: '最多3个', member: '无限' },
       { feature: '21天打卡记录', free: '仅7天', member: '完整21天' },
@@ -47,9 +59,47 @@ Page({
         statusText: memberStatus === 1 ? '已开通会员' : '免费用户',
         expireText
       });
+      this.loadUsage();
     } catch (error) {
       console.error('刷新用户信息失败', error);
     }
+  },
+
+  async loadUsage () {
+    try {
+      const res = await wx.cloud.callFunction({ name: 'getMyHabits' });
+      const count = (res && res.result && Array.isArray(res.result.data)) ? res.result.data.length : 0;
+      this.setData({ habitCount: count }, () => {
+        this.updateValueBlocks();
+      });
+    } catch (error) {
+      console.log('获取习惯数失败', error);
+      this.updateValueBlocks();
+    }
+  },
+
+  updateValueBlocks () {
+    const { habitCount, maxFreeHabits, memberLimit, isMember, reportTier, retentionDays } = this.data;
+    const currentLimits = [
+      {
+        label: '习惯数量',
+        value: `${habitCount}/${isMember ? memberLimit : maxFreeHabits}`,
+        tip: isMember ? '会员上限20个同时进行' : '免费版上限3个，升级后解锁到20个',
+        warn: !isMember && habitCount >= maxFreeHabits
+      },
+      {
+        label: '报告级别',
+        value: isMember ? '高级报告' : reportTier,
+        tip: isMember ? '可查看完整趋势与建议' : '当前为基础版，升级解锁高级分析'
+      },
+      {
+        label: '数据保留',
+        value: isMember ? '永久保留' : retentionDays,
+        tip: isMember ? '会员数据长期可查' : '升级后不再自动清理历史数据'
+      }
+    ];
+
+    this.setData({ currentLimits });
   },
 
   async handlePay () {
@@ -93,5 +143,13 @@ Page({
       wx.showToast({ title: '支付失败', icon: 'none' });
       this.setData({ paying: false });
     }
+  },
+
+  handleTrial () {
+    if (this.data.noMerchant) {
+      wx.showToast({ title: '配置商户后可开通试用', icon: 'none' });
+      return;
+    }
+    wx.showToast({ title: '试用功能即将上线', icon: 'none' });
   }
 });

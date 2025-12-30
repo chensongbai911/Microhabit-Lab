@@ -23,8 +23,20 @@
 
     <!-- 搜索框 -->
     <view class="search-box">
-      <!-- P0-1: 优化搜索框占位文案 -->
-      <input class="search-input" placeholder="想变轻一点？随便看看" bindinput="onSearchInput" value="{{searchQuery}}" />
+      <view class="search-field">
+        <text class="search-icon">🔍</text>
+        <!-- P0-1: 优化搜索框占位文案 -->
+        <input
+          class="search-input"
+          placeholder="想变轻一点？随便看看"
+          bindinput="onSearchInput"
+          bindconfirm="onSearchConfirm"
+          value="{{searchQuery}}"
+          confirm-type="search"
+        />
+        <view class="search-clear" wx:if="{{searchQuery}}" bindtap="clearSearch">✕</view>
+      </view>
+      <view class="search-hint">输入关键词或直接选分类，先挑轻松的开始</view>
     </view>
 
     <!-- 分类筛选 -->
@@ -42,6 +54,25 @@
     <view class="category-hint">
       <text class="hint-icon">💡</text>
       <text class="hint-text">先选不费力的，其他可以以后再说</text>
+    </view>
+
+    <!-- 搜索历史 -->
+    <view class="search-history" wx:if="{{!searchQuery && searchHistory.length > 0}}">
+      <view class="history-title">最近搜过</view>
+      <view class="history-tags">
+          <view class="history-tag"
+            wx:for="{{searchHistory}}"
+            wx:key="*this"
+            bindtap="selectHistory"
+            data-keyword="{{item}}">
+          {{item}}
+        </view>
+      </view>
+    </view>
+
+    <!-- 搜索结果提示 -->
+    <view class="search-meta" wx:if="{{isSearching}}">
+      找到 {{filteredTemplates.length}} 个习惯
     </view>
 
     <!-- 加载中 -->
@@ -128,28 +159,43 @@
 
     <!-- 习惯列表 -->
     <view class="my-habits-list" wx:if="{{!loadingMyHabits && myHabits.length > 0}}">
-      <view class="habit-item"
+      <view class="habit-item {{item.status === 'paused' ? 'paused' : ''}}"
             wx:for="{{myHabits}}"
             wx:key="_id"
             bindtap="goToDetail"
             data-id="{{item._id}}">
-        <view class="habit-main-info">
+        <!-- 标题和状态芯片 -->
+        <view class="habit-header">
           <view class="habit-name">{{item.name}}</view>
-          <!-- P0-2: 使用优化后的状态文案 -->
-          <view class="habit-status {{item.status}}">
-            {{item.statusText}}
-          </view>
+          <view class="habit-status-chip {{item.status}}">{{item.statusText}}</view>
         </view>
+        <!-- 进度部分 -->
         <view class="habit-progress">
-          <!-- P0-2: 使用温暖进度文案替代 Day X/Y -->
           <view class="habit-progress-text-warm">{{item.warmProgressText}}</view>
           <view class="habit-progress-bar">
             <view class="habit-progress-inner" style="width: {{item.progress.percentage}}%;"></view>
           </view>
         </view>
-        <!-- P1-1: 添加暂停/恢复按钮 -->
-        <view class="habit-actions" wx:if="{{item.status === 'in_progress'}}" catchtap="stopPropagation">
-          <button class="btn-pause" bindtap="pauseHabit" data-id="{{item._id}}">暂停一阵</button>
+        <!-- 状态提示 -->
+        <view class="habit-state-hint" wx:if="{{item.status === 'paused'}}">
+          ⏸️ 已暂停，恢复后继续当前进度
+        </view>
+        <!-- 操作按钮 -->
+        <view class="habit-actions" catchtap="stopPropagation">
+          <button
+            class="btn-habit-action {{item.status === 'paused' ? 'resume' : 'pause'}}"
+            wx:if="{{item.status === 'in_progress'}}"
+            bindtap="pauseHabit"
+            data-id="{{item._id}}">
+            暂时放下
+          </button>
+          <button
+            class="btn-habit-action resume"
+            wx:elif="{{item.status === 'paused' || item.status === 'finished'}}"
+            bindtap="resumeHabit"
+            data-id="{{item._id}}">
+            继续陪伴
+          </button>
         </view>
       </view>
     </view>

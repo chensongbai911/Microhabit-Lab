@@ -1,4 +1,5 @@
 const constants = require('../../utils/constants.js');
+const triggerTime = require('../../utils/triggerTime.js');
 
 Page({
   data: {
@@ -21,7 +22,14 @@ Page({
     loading: true,
     selectedDate: null,
     selectedDateData: null,
-    showDateModal: false
+    showDateModal: false,
+    // P0: 编辑功能新增数据
+    editMode: false,
+    showEditTargetModal: false,
+    showEditReminderModal: false,
+    editingTargetTimes: 1,
+    editingReminder: '',
+    isPaused: false
   },
 
   onLoad (options) {
@@ -58,7 +66,10 @@ Page({
           stats,
           calendar,
           advice,
-          loading: false
+          loading: false,
+          editingTargetTimes: habit.target_times_per_day || 1,
+          editingReminder: habit.trigger || habit.default_trigger || '',
+          isPaused: habit.status === 'paused' || false
         });
       } else {
         wx.showToast({ title: res.result.message || '获取失败', icon: 'none' });
@@ -101,6 +112,203 @@ Page({
    */
   closeDateModal () {
     this.setData({ showDateModal: false });
+  },
+
+  /**
+   * P0: 暂停/继续习惯
+   */
+  togglePauseHabit () {
+    const newStatus = this.data.isPaused ? 'active' : 'paused';
+    const confirmText = this.data.isPaused ? '继续这个习惯？' : '暂停这个习惯？';
+    const content = this.data.isPaused
+      ? '继续后，您将重新开始计数，坚持完成这个习惯。'
+      : '暂停后，这个习惯不会出现在今日列表中，但进度数据会保留。';
+
+    wx.showModal({
+      title: confirmText,
+      content: content,
+      confirmText: '确认',
+      cancelText: '取消',
+      success: async (res) => {
+        if (res.confirm) {
+          await this.updateHabitStatus(newStatus);
+        }
+      }
+    });
+  },
+
+  /**
+   * 更新习惯状态（暂停/继续）
+   */
+  async updateHabitStatus (status) {
+    this.setData({ loading: true });
+    try {
+      const res = await wx.cloud.callFunction({
+        name: 'updateHabit',
+        data: {
+          user_habit_id: this.data.habitId,
+          updates: {
+            status: status,
+            updated_at: new Date().toISOString()
+          }
+        }
+      });
+
+      if (res.result.code === 0) {
+        const isPaused = status === 'paused';
+        this.setData({ isPaused });
+        wx.showToast({
+          title: isPaused ? '已暂停' : '已继续',
+          icon: 'success'
+        });
+        this.loadDetail();
+      } else {
+        wx.showToast({ title: res.result.message || '更新失败', icon: 'none' });
+        this.setData({ loading: false });
+      }
+    } catch (error) {
+      console.error('更新失败', error);
+      wx.showToast({ title: '更新失败，请重试', icon: 'none' });
+      this.setData({ loading: false });
+    }
+  },
+
+  /**
+   * P0: 打开编辑目标次数弹窗
+   */
+  showEditTargetModal () {
+    this.setData({
+      showEditTargetModal: true,
+      editingTargetTimes: this.data.habit.target_times_per_day || 1
+    });
+  },
+
+  /**
+   * 关闭目标次数编辑弹窗
+   */
+  closeEditTargetModal () {
+    this.setData({ showEditTargetModal: false });
+  },
+
+  /**
+   * 更新目标次数（+1/-1按钮处理）
+   */
+  updateTargetTimes (e) {
+    const action = e.currentTarget.dataset.action;
+    let newValue = this.data.editingTargetTimes;
+
+    if (action === 'increase') {
+      newValue = Math.min(newValue + 1, 10);
+    } else if (action === 'decrease') {
+      newValue = Math.max(newValue - 1, 1);
+    }
+
+    this.setData({ editingTargetTimes: newValue });
+  },
+
+  /**
+   * 保存目标次数更改
+   */
+  async saveTargetTimes () {
+    const newTargetTimes = this.data.editingTargetTimes;
+    if (newTargetTimes === this.data.habit.target_times_per_day) {
+      this.setData({ showEditTargetModal: false });
+      return;
+    }
+
+    this.setData({ loading: true });
+    try {
+      const res = await wx.cloud.callFunction({
+        name: 'updateHabit',
+        data: {
+          user_habit_id: this.data.habitId,
+          updates: {
+            target_times_per_day: newTargetTimes,
+            updated_at: new Date().toISOString()
+          }
+        }
+      });
+
+      if (res.result.code === 0) {
+        wx.showToast({ title: '已更新', icon: 'success' });
+        this.setData({ showEditTargetModal: false });
+        this.loadDetail();
+      } else {
+        wx.showToast({ title: res.result.message || '更新失败', icon: 'none' });
+        this.setData({ loading: false });
+      }
+    } catch (error) {
+      console.error('更新失败', error);
+      wx.showToast({ title: '更新失败，请重试', icon: 'none' });
+      this.setData({ loading: false });
+    }
+  },
+
+  /**
+   * P0: 打开编辑提醒时间弹窗
+   */
+  showEditReminderModal () {
+    this.setData({
+      showEditReminderModal: true,
+      editingReminder: this.data.habit.trigger || this.data.habit.default_trigger || ''
+    });
+  },
+
+  /**
+   * 关闭提醒编辑弹窗
+   */
+  closeEditReminderModal () {
+    this.setData({ showEditReminderModal: false });
+  },
+
+  /**
+   * 更新提醒输入值
+   */
+  onReminderInput (e) {
+    this.setData({ editingReminder: e.detail.value });
+  },
+
+  /**
+   * 保存提醒时间更改
+   */
+  async saveReminder () {
+    const newReminder = this.data.editingReminder.trim();
+    if (!newReminder) {
+      wx.showToast({ title: '提醒时间不能为空', icon: 'none' });
+      return;
+    }
+
+    if (newReminder === this.data.habit.trigger) {
+      this.setData({ showEditReminderModal: false });
+      return;
+    }
+
+    this.setData({ loading: true });
+    try {
+      const res = await wx.cloud.callFunction({
+        name: 'updateHabit',
+        data: {
+          user_habit_id: this.data.habitId,
+          updates: {
+            trigger: newReminder,
+            updated_at: new Date().toISOString()
+          }
+        }
+      });
+
+      if (res.result.code === 0) {
+        wx.showToast({ title: '已更新', icon: 'success' });
+        this.setData({ showEditReminderModal: false });
+        this.loadDetail();
+      } else {
+        wx.showToast({ title: res.result.message || '更新失败', icon: 'none' });
+        this.setData({ loading: false });
+      }
+    } catch (error) {
+      console.error('更新失败', error);
+      wx.showToast({ title: '更新失败，请重试', icon: 'none' });
+      this.setData({ loading: false });
+    }
   },
 
   /**

@@ -10,6 +10,29 @@
       <button class="pay-btn" type="primary" bindtap="handlePay" loading="{{paying}}" disabled="{{paying || noMerchant}}">
         {{noMerchant ? '待配置商户' : (isMember ? '续费会员' : '立即开通')}}
       </button>
+      <button class="trial-btn" bindtap="handleTrial" disabled="{{noMerchant}}">7天免费试用</button>
+    </view>
+
+    <!-- 当前限制 -->
+    <view class="limit-card">
+      <view class="section-title">你的当前限制</view>
+      <block wx:for="{{currentLimits}}" wx:key="label">
+        <view class="limit-row {{item.warn ? 'warn' : ''}}">
+          <view class="limit-info">
+            <view class="limit-label">{{item.label}}</view>
+            <view class="limit-tip">{{item.tip}}</view>
+          </view>
+          <view class="limit-value">{{item.value}}</view>
+        </view>
+      </block>
+    </view>
+
+    <!-- 升级后获得 -->
+    <view class="upgrade-card">
+      <view class="section-title">升级后获得</view>
+      <view class="upgrade-tags">
+        <view class="upgrade-tag" wx:for="{{upgradeHighlights}}" wx:key="*this">{{item}}</view>
+      </view>
     </view>
 
     <!-- 权益列表 -->

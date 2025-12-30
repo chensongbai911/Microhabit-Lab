@@ -50,6 +50,76 @@
 	font-size: 32rpx;
 }
 
+.trial-btn {
+	margin-top: 16rpx;
+	background: rgba(255, 255, 255, 0.16);
+	color: #ffffff;
+	border: 2rpx solid rgba(255, 255, 255, 0.35);
+	border-radius: 999rpx;
+	font-size: 28rpx;
+}
+
+.limit-card,
+.upgrade-card {
+	background: white;
+	border-radius: 24rpx;
+	padding: 24rpx;
+	box-shadow: 0 2rpx 16rpx rgba(15, 23, 42, 0.06);
+}
+
+.limit-row {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 20rpx 0;
+	border-bottom: 1rpx solid #f0f2f5;
+}
+
+.limit-row:last-child {
+	border-bottom: none;
+}
+
+.limit-row.warn {
+	background: #fff7f5;
+}
+
+.limit-info {
+	display: flex;
+	flex-direction: column;
+	gap: 6rpx;
+}
+
+.limit-label {
+	font-size: 28rpx;
+	color: var(--text-primary);
+	font-weight: 600;
+}
+
+.limit-tip {
+	font-size: 24rpx;
+	color: var(--text-tertiary);
+}
+
+.limit-value {
+	font-size: 28rpx;
+	color: var(--primary-color);
+	font-weight: 700;
+}
+
+.upgrade-tags {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12rpx;
+}
+
+.upgrade-tag {
+	padding: 12rpx 18rpx;
+	background: #f0f7ff;
+	color: #1d4ed8;
+	border-radius: 999rpx;
+	font-size: 24rpx;
+}
+
 .benefit-card,
 .hint-card {
 	background: white;

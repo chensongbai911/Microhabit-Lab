@@ -14,6 +14,11 @@ Page({
     // P1-1: 顶部被肯定文案
     topStatusText: '',       // 顶部状态文案
 
+    // P0: 周期计时器数据
+    currentCycleDay: 1,      // 当前周期第几天
+    cyclePercentage: 0,      // 周期完成百分比
+    cycleStatus: 'early',    // 周期状态: early/middle/final/critical
+
     // 页面状态
     dateDisplay: '',
     encouragementText: '',
@@ -88,6 +93,46 @@ Page({
   },
 
   /**
+   * P0: 计算周期数据 - 用于显示21天周期进度
+   * 支持多习惯的平均周期计算
+   */
+  calculateCycleData (habits = []) {
+    if (!habits || habits.length === 0) {
+      return {
+        currentDay: 1,
+        percentage: 0,
+        status: 'early'
+      };
+    }
+
+    // 取所有习惯周期的平均值（或最小值）
+    const cycleDays = habits.map(h => h.progressCurrent || 1);
+    const avgDay = Math.ceil(cycleDays.reduce((a, b) => a + b, 0) / cycleDays.length);
+    const currentDay = Math.max(1, Math.min(avgDay, 21));
+
+    // 计算完成百分比
+    const percentage = Math.round((currentDay / 21) * 100);
+
+    // 根据进度确定状态
+    let status = 'early';
+    if (currentDay >= 1 && currentDay <= 7) {
+      status = 'early';     // 早期：1-7天
+    } else if (currentDay > 7 && currentDay <= 14) {
+      status = 'middle';    // 中期：8-14天
+    } else if (currentDay > 14 && currentDay < 21) {
+      status = 'final';     // 最后阶段：15-20天
+    } else if (currentDay === 21) {
+      status = 'critical';  // 完成状态
+    }
+
+    return {
+      currentDay: currentDay,
+      percentage: percentage,
+      status: status
+    };
+  },
+
+  /**
    * Phase 3新增: 加载推荐习惯
    */
   loadRecommendedHabits (userHabits = []) {
@@ -150,6 +195,9 @@ Page({
           };
         });
 
+        // P0: 计算周期数据
+        const cycleData = this.calculateCycleData(processedHabits);
+
         // 检查是否全部完成
         const allCompleted = totalCount > 0 && completedCount === totalCount;
 
@@ -172,6 +220,9 @@ Page({
           totalCount: totalCount,
           progress: progress,
           topStatusText: topStatusText,
+          currentCycleDay: cycleData.currentDay,
+          cyclePercentage: cycleData.percentage,
+          cycleStatus: cycleData.status,
           loading: false,
           allCompleted: allCompleted,
           showCompletedAnimation: allCompleted

@@ -35,6 +35,16 @@
 
       <view class="setting-row">
         <view class="setting-label">
+          <text class="label-text">开启双提醒</text>
+          <text class="label-hint">增加晚间提醒，防止漏掉</text>
+        </view>
+        <switch checked="{{multipleReminders}}" bindchange="toggleMultipleReminders" color="#07C160" />
+      </view>
+
+      <view class="divider" wx:if="{{multipleReminders}}"></view>
+
+      <view class="setting-row" wx:if="{{multipleReminders}}">
+        <view class="setting-label">
           <text class="label-text">晚间提醒</text>
           <text class="label-hint">建议设置为晚上习惯时间</text>
         </view>
@@ -101,7 +111,67 @@
         <view class="preview-row">已完成：1个</view>
         <view class="preview-row">点击查看并完成剩余习惯</view>
       </view>
-      <view class="preview-time">{{reminderTime1}} & {{reminderTime2}}</view>
+      <view class="preview-time">{{multipleReminders ? reminderTime1 + ' & ' + reminderTime2 : reminderTime1}}</view>
+    </view>
+
+    <!-- 勿扰时段 -->
+    <view class="section-header">
+      <view class="section-title">勿扰时段</view>
+      <view class="section-desc">在休息时间暂停提醒</view>
+    </view>
+
+    <view class="setting-card">
+      <view class="setting-row">
+        <view class="setting-label">
+          <text class="label-text">启用勿扰</text>
+          <text class="label-hint">默认 22:00 - 08:00</text>
+        </view>
+        <switch checked="{{dndEnabled}}" bindchange="toggleDnd" color="#07C160" />
+      </view>
+
+      <view class="divider" wx:if="{{dndEnabled}}"></view>
+
+      <view class="setting-row" wx:if="{{dndEnabled}}">
+        <view class="setting-label">
+          <text class="label-text">开始时间</text>
+          <text class="label-hint">勿扰开启</text>
+        </view>
+        <picker mode="time" value="{{dndStart}}" bindchange="selectDndStart">
+          <view class="time-picker">
+            {{dndStart}}
+          </view>
+        </picker>
+      </view>
+
+      <view class="divider" wx:if="{{dndEnabled}}"></view>
+
+      <view class="setting-row" wx:if="{{dndEnabled}}">
+        <view class="setting-label">
+          <text class="label-text">结束时间</text>
+          <text class="label-hint">勿扰结束</text>
+        </view>
+        <picker mode="time" value="{{dndEnd}}" bindchange="selectDndEnd">
+          <view class="time-picker">
+            {{dndEnd}}
+          </view>
+        </picker>
+      </view>
+    </view>
+
+    <!-- 外观设置 -->
+    <view class="section-header">
+      <view class="section-title">外观</view>
+      <view class="section-desc">切换界面风格</view>
+    </view>
+
+    <view class="setting-card">
+      <view class="setting-row">
+        <view class="setting-label">
+          <text class="label-text">深色模式</text>
+          <text class="label-hint">夜间更护眼</text>
+        </view>
+        <switch checked="{{darkMode}}" bindchange="toggleDarkMode" color="#07C160" />
+      </view>
     </view>
 
     <!-- 动效设置 -->

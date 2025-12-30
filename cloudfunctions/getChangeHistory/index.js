@@ -1,10 +1,12 @@
 // 云函数: 获取习惯变更历史
 const cloud = require('wx-server-sdk');
-cloud.init();
+cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 
 const db = cloud.database();
 
 exports.main = async (event, context) => {
+  const wxContext = cloud.getWXContext();
+  const openid = wxContext.OPENID;
   const { user_habit_id, limit = 50 } = event;
 
   if (!user_habit_id) {
@@ -15,10 +17,11 @@ exports.main = async (event, context) => {
   }
 
   try {
-    // 查询变更历史，按时间倒序
+    // 查询变更历史，按时间倒序（确保用户只能查看自己的数据）
     const res = await db.collection('habit_change_logs')
       .where({
-        user_habit_id: user_habit_id
+        user_habit_id: user_habit_id,
+        _openid: openid
       })
       .orderBy('timestamp', 'desc')
       .limit(limit)

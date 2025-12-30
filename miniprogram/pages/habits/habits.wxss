@@ -41,6 +41,21 @@
   background: white;
 }
 
+.search-field {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  padding: 8rpx 16rpx;
+  background: #f5f7fa;
+  border: 2rpx solid #eef1f5;
+  border-radius: 16rpx;
+}
+
+.search-icon {
+  font-size: 28rpx;
+  color: var(--text-tertiary);
+}
+
 /* P2: 习惯数量软限制提示 */
 .habit-limit-hint {
   margin: 16rpx 32rpx 0 32rpx;
@@ -81,14 +96,25 @@
 }
 
 .search-input {
-  width: 100%;
-  height: 72rpx;
-  padding: 0 24rpx;
-  border-radius: 16rpx;
-  background: #f5f7fa;
-  border: 2rpx solid #eef1f5;
+  flex: 1;
+  height: 56rpx;
+  padding: 0 12rpx;
+  background: transparent;
+  border: none;
   font-size: 28rpx;
   color: var(--text-primary);
+}
+
+.search-clear {
+  padding: 0 12rpx;
+  color: var(--text-tertiary);
+  font-size: 30rpx;
+}
+
+.search-hint {
+  margin-top: 12rpx;
+  font-size: 24rpx;
+  color: var(--text-tertiary);
 }
 
 /* 分类筛选 */
@@ -130,6 +156,38 @@
   font-size: 24rpx;
   color: var(--text-tertiary);
   line-height: 1.5;
+}
+
+.search-history {
+  padding: 0 32rpx 12rpx 32rpx;
+  background: white;
+}
+
+.history-title {
+  font-size: 24rpx;
+  color: var(--text-secondary);
+  margin-bottom: 12rpx;
+}
+
+.history-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+}
+
+.history-tag {
+  padding: 10rpx 20rpx;
+  background: #f3f4f6;
+  border-radius: 999rpx;
+  font-size: 24rpx;
+  color: var(--text-secondary);
+}
+
+.search-meta {
+  padding: 0 32rpx 12rpx 32rpx;
+  font-size: 24rpx;
+  color: var(--text-tertiary);
+  background: white;
 }
 
 /* 模板列表 */
@@ -270,11 +328,16 @@
   box-shadow: 0 4rpx 20rpx rgba(15, 23, 42, 0.1);
 }
 
-.habit-main-info {
+.habit-item.paused {
+  opacity: 0.75;
+}
+
+/* 习惯头部：标题+状态芯片 */
+.habit-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 16rpx;
+  justify-content: space-between;
+  margin-bottom: 12rpx;
 }
 
 .habit-name {
@@ -284,31 +347,39 @@
   color: var(--text-primary);
 }
 
-.habit-status {
-  padding: 8rpx 16rpx;
-  border-radius: 8rpx;
-  font-size: 24rpx;
+.habit-status-chip {
+  padding: 6rpx 14rpx;
+  border-radius: 999rpx;
+  font-size: 22rpx;
+  font-weight: 500;
+  white-space: nowrap;
+  margin-left: 12rpx;
 }
 
-.habit-status.in_progress {
-  background: rgba(16, 185, 129, 0.1);
-  color: var(--success-color);
+.habit-status-chip.in_progress {
+  background: #e8f7f3;
+  color: #0fa080;
 }
 
-.habit-status.finished {
-  background: var(--bg-gray);
-  color: var(--text-tertiary);
+.habit-status-chip.paused,
+.habit-status-chip.finished {
+  background: #f3f4f6;
+  color: #6b7280;
 }
 
+.habit-main-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+
+/* 进度部分 */
 .habit-progress {
   display: flex;
   flex-direction: column;
-  gap: 8rpx;
-}
-
-.habit-progress-text {
-  font-size: 24rpx;
-  color: var(--text-tertiary);
+  gap: 6rpx;
+  margin-bottom: 12rpx;
 }
 
 /* P0-2: 温暖进度文案样式 */
@@ -323,43 +394,47 @@
   align-self: flex-start;
 }
 
-.habit-progress-bar {
-  width: 100%;
-  height: 12rpx;
-  background: #f0f2f5;
-  border-radius: 12rpx;
-  overflow: hidden;
+/* 状态提示 */
+.habit-state-hint {
+  font-size: 24rpx;
+  color: #6b7280;
+  margin-bottom: 12rpx;
+  line-height: 1.4;
+  padding: 8rpx 0;
 }
 
-.habit-progress-inner {
-  height: 100%;
-  background: linear-gradient(135deg, #4CB8A5 0%, #4C9BFF 100%);
-  border-radius: 12rpx;
-}
-
-/* P1-1: 习惯操作按钮区域 */
+/* 操作按钮 */
 .habit-actions {
-  margin-top: 16rpx;
+  margin-top: 12rpx;
   display: flex;
-  justify-content: flex-end;
+  justify-content: stretch;
 }
 
-.btn-pause {
-  padding: 12rpx 24rpx !important;
+.btn-habit-action {
+  flex: 1;
+  padding: 14rpx 24rpx !important;
   height: auto !important;
   line-height: 1 !important;
-  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-  color: #92400e;
-  border: 1rpx solid #fcd34d;
   border-radius: 12rpx;
-  font-size: 24rpx;
+  font-size: 26rpx;
   font-weight: 500;
   transition: all 0.3s ease;
+  border: none !important;
 }
 
-.btn-pause:active {
-  transform: scale(0.95);
-  opacity: 0.8;
+.btn-habit-action.pause {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  color: #92400e;
+}
+
+.btn-habit-action.resume {
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+  color: #047857;
+}
+
+.btn-habit-action:active {
+  transform: scale(0.98);
+  opacity: 0.85;
 }
 
 /* 加载骨架屏 */

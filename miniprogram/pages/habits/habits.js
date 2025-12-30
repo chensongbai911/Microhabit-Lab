@@ -10,6 +10,8 @@ Page({
     categories: constants.habitCategories,
     selectedCategory: 'all',
     searchQuery: '',
+    searchHistory: [],
+    isSearching: false,
     templates: [],
     filteredTemplates: [],
     loadingTemplates: true,
@@ -25,6 +27,7 @@ Page({
   },
 
   onLoad () {
+    this.loadSearchHistory();
     this.loadTemplates();
     this.loadInProgressCount();  // P2: 加载进行中习惯数量
   },
@@ -69,7 +72,33 @@ Page({
   onSearchInput (e) {
     const value = (e.detail.value || '').trim();
     this.setData({ searchQuery: value }, () => {
-      this.filterTemplates();
+      this.filterTemplates(value);
+    });
+  },
+
+  onSearchConfirm (e) {
+    const keyword = (e.detail.value || '').trim();
+    if (!keyword) {
+      this.clearSearch();
+      return;
+    }
+
+    this.saveSearchHistory(keyword);
+    this.setData({ searchQuery: keyword }, () => {
+      this.filterTemplates(keyword);
+    });
+  },
+
+  clearSearch () {
+    this.setData({ searchQuery: '', isSearching: false }, () => {
+      this.filterTemplates('');
+    });
+  },
+
+  selectHistory (e) {
+    const keyword = e.currentTarget.dataset.keyword || '';
+    this.setData({ searchQuery: keyword }, () => {
+      this.filterTemplates(keyword);
     });
   },
 
@@ -101,9 +130,10 @@ Page({
   /**
    * 筛选模板
    */
-  filterTemplates () {
-    const { templates, selectedCategory, searchQuery } = this.data;
-    const keyword = searchQuery.toLowerCase();
+  filterTemplates (keywordOverride) {
+    const { templates, selectedCategory } = this.data;
+    const searchQuery = typeof keywordOverride === 'string' ? keywordOverride : this.data.searchQuery;
+    const keyword = (searchQuery || '').toLowerCase();
 
     const list = templates.filter(t => {
       const matchCategory = selectedCategory === 'all' || t.category === selectedCategory;
@@ -111,7 +141,21 @@ Page({
       return matchCategory && matchKeyword;
     });
 
-    this.setData({ filteredTemplates: list });
+    this.setData({ filteredTemplates: list, isSearching: !!keyword });
+  },
+
+  loadSearchHistory () {
+    const history = wx.getStorageSync('habit_search_history') || [];
+    if (Array.isArray(history)) {
+      this.setData({ searchHistory: history.slice(0, 5) });
+    }
+  },
+
+  saveSearchHistory (keyword) {
+    if (!keyword) return;
+    const history = [keyword, ...this.data.searchHistory.filter(item => item !== keyword)].slice(0, 5);
+    this.setData({ searchHistory: history });
+    wx.setStorageSync('habit_search_history', history);
   },
 
   /**
@@ -154,6 +198,8 @@ Page({
           let statusText = '';
           if (habit.status === 'in_progress') {
             statusText = '正在陪伴';
+          } else if (habit.status === 'paused') {
+            statusText = '暂时放下';
           } else if (habit.status === 'finished') {
             statusText = '暂时放下';
           } else {
@@ -286,14 +332,35 @@ Page({
     const habit = this.data.myHabits.find(h => h._id === habitId);
 
     wx.showModal({
-      title: '暂停一阵',
-      content: `暂停"${habit.name}"\n\n暂停不会清零，也不算失败\n随时可以在详情页恢复`,
-      confirmText: '暂停',
-      cancelText: '取消',
-      confirmColor: '#07C160',
+      title: '暂时放下',
+      content: `暂停"${habit.name}"\\n\\n• 不会清零进度\\n• 不算失败\\n• 随时可以恢复`,
+      confirmText: '确认暂停',
+      cancelText: '继续做',
+      confirmColor: '#FFC13A',
       success: (res) => {
         if (res.confirm) {
           this.performPause(habitId);
+        }
+      }
+    });
+  },
+
+  /**
+   * P1-1: 恢复习惯
+   */
+  resumeHabit (e) {
+    const habitId = e.currentTarget.dataset.id;
+    const habit = this.data.myHabits.find(h => h._id === habitId);
+
+    wx.showModal({
+      title: '继续陪伴',
+      content: `恢复"${habit.name}"\\n\\n• 进度已保留\\n• 重新开始计数`,
+      confirmText: '继续',
+      cancelText: '稍后',
+      confirmColor: '#07C160',
+      success: (res) => {
+        if (res.confirm) {
+          this.performResume(habitId);
         }
       }
     });
@@ -336,6 +403,49 @@ Page({
     } catch (error) {
       wx.hideLoading();
       console.error('暂停习惯失败:', error);
+      wx.showToast({
+        title: '操作失败，请重试',
+        icon: 'none'
+      });
+    }
+  },
+
+  /**
+   * 执行恢复操作
+   */
+  async performResume (habitId) {
+    wx.showLoading({ title: '恢复中...', mask: true });
+
+    try {
+      const res = await wx.cloud.callFunction({
+        name: 'updateHabitStatus',
+        data: {
+          user_habit_id: habitId,
+          action: 'resume'
+        }
+      });
+
+      wx.hideLoading();
+
+      if (res.result.code === 0) {
+        wx.showToast({
+          title: '已恢复',
+          icon: 'success',
+          duration: 1500
+        });
+
+        setTimeout(() => {
+          this.loadMyHabits();
+        }, 500);
+      } else {
+        wx.showToast({
+          title: res.result.message || '恢复失败',
+          icon: 'none'
+        });
+      }
+    } catch (error) {
+      wx.hideLoading();
+      console.error('恢复习惯失败:', error);
       wx.showToast({
         title: '操作失败，请重试',
         icon: 'none'

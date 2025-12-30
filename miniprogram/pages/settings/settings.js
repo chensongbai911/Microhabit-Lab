@@ -6,11 +6,16 @@ Page({
     reminderEnabled: false,
     reminderTime1: '08:00',
     reminderTime2: '20:00',
+    multipleReminders: true,
+    dndEnabled: false,
+    dndStart: '22:00',
+    dndEnd: '08:00',
     subscribeStatus: {
       daily: false,
       completion: false,
       milestone: false
     },
+    darkMode: false,
     effectsEnabled: true,
     effectsIntensity: 2
   },
@@ -20,6 +25,7 @@ Page({
     resourceCache.initEffectsResources();
 
     this.loadSettings();
+    this.loadAppSettings();
     this.checkSubscribeStatus();
     this.loadEffectsSettings();
   },
@@ -45,11 +51,31 @@ Page({
         this.setData({
           reminderEnabled: settings.enabled || false,
           reminderTime1: settings.time1 || '08:00',
-          reminderTime2: settings.time2 || '20:00'
+          reminderTime2: settings.time2 || '20:00',
+          multipleReminders: settings.multipleReminders !== false,
+          dndEnabled: settings.dndEnabled || false,
+          dndStart: settings.dndStart || '22:00',
+          dndEnd: settings.dndEnd || '08:00'
         });
       }
     } catch (error) {
       console.error('加载设置失败:', error);
+    }
+  },
+
+  /**
+   * 加载应用偏好设置
+   */
+  loadAppSettings () {
+    try {
+      const appSettings = wx.getStorageSync('appSettings');
+      if (appSettings) {
+        this.setData({
+          darkMode: !!appSettings.darkMode
+        });
+      }
+    } catch (error) {
+      console.error('加载偏好设置失败:', error);
     }
   },
 
@@ -82,7 +108,7 @@ Page({
       await this.requestSubscribe();
     } else {
       // 关闭提醒
-      this.saveSettings({ enabled: false });
+      this.saveReminderSettings({ enabled: false });
     }
   },
 
@@ -105,7 +131,7 @@ Page({
 
       if (authorized) {
         this.setData({ reminderEnabled: true });
-        this.saveSettings({ enabled: true });
+        this.saveReminderSettings({ enabled: true });
         wx.showToast({
           title: '提醒已开启',
           icon: 'success'
@@ -135,7 +161,7 @@ Page({
   selectTime1 (e) {
     const time = e.detail.value;
     this.setData({ reminderTime1: time });
-    this.saveSettings({ time1: time });
+    this.saveReminderSettings({ time1: time });
   },
 
   /**
@@ -144,41 +170,111 @@ Page({
   selectTime2 (e) {
     const time = e.detail.value;
     this.setData({ reminderTime2: time });
-    this.saveSettings({ time2: time });
+    this.saveReminderSettings({ time2: time });
+  },
+
+  /**
+   * 切换多提醒
+   */
+  toggleMultipleReminders (e) {
+    const enabled = e.detail.value;
+    this.setData({ multipleReminders: enabled });
+    this.saveReminderSettings({ multipleReminders: enabled });
+  },
+
+  /**
+   * 切换勿扰模式
+   */
+  toggleDnd (e) {
+    const enabled = e.detail.value;
+    this.setData({ dndEnabled: enabled });
+    this.saveReminderSettings({ dndEnabled: enabled });
+  },
+
+  /**
+   * 选择勿扰开始时间
+   */
+  selectDndStart (e) {
+    const time = e.detail.value;
+    this.setData({ dndStart: time });
+    this.saveReminderSettings({ dndStart: time });
+  },
+
+  /**
+   * 选择勿扰结束时间
+   */
+  selectDndEnd (e) {
+    const time = e.detail.value;
+    this.setData({ dndEnd: time });
+    this.saveReminderSettings({ dndEnd: time });
+  },
+
+  /**
+   * 切换深色模式
+   */
+  toggleDarkMode (e) {
+    const enabled = e.detail.value;
+    this.setData({ darkMode: enabled });
+    this.saveAppSettings({ darkMode: enabled });
   },
 
   /**
    * 保存设置到本地
    */
-  saveSettings (updates) {
+  saveReminderSettings (updates) {
     try {
       const current = wx.getStorageSync('reminderSettings') || {};
       const newSettings = {
         ...current,
         ...updates,
         time1: this.data.reminderTime1,
-        time2: this.data.reminderTime2
+        time2: this.data.reminderTime2,
+        multipleReminders: this.data.multipleReminders,
+        dndEnabled: this.data.dndEnabled,
+        dndStart: this.data.dndStart,
+        dndEnd: this.data.dndEnd
       };
 
       wx.setStorageSync('reminderSettings', newSettings);
 
       // 同步到云端
-      this.syncToCloud(newSettings);
+      this.syncToCloud(newSettings, null);
     } catch (error) {
       console.error('保存设置失败:', error);
     }
   },
 
   /**
+   * 保存应用偏好设置
+   */
+  saveAppSettings (updates) {
+    try {
+      const current = wx.getStorageSync('appSettings') || {};
+      const newSettings = { ...current, ...updates };
+      wx.setStorageSync('appSettings', newSettings);
+      this.syncToCloud(null, newSettings);
+    } catch (error) {
+      console.error('保存偏好设置失败:', error);
+    }
+  },
+
+  /**
    * 同步设置到云端
    */
-  async syncToCloud (settings) {
+  async syncToCloud (reminderSettings, appSettings) {
     try {
+      const data = {};
+      if (reminderSettings) {
+        data.reminder_settings = reminderSettings;
+      }
+      if (appSettings) {
+        data.app_settings = appSettings;
+      }
+      if (Object.keys(data).length === 0) return;
+
       await wx.cloud.callFunction({
         name: 'updateUserSettings',
-        data: {
-          reminder_settings: settings
-        }
+        data
       });
     } catch (error) {
       console.log('同步云端失败:', error);

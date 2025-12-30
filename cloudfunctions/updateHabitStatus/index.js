@@ -62,13 +62,28 @@ exports.main = async (event, context) => {
           .doc(user_habit_id)
           .update({
             data: {
-              status: 'finished',
+              status: 'paused',
               updated_at: now
             }
           });
         return {
           code: 0,
           message: '已暂停'
+        };
+
+      case 'resume':
+        // 恢复习惯（保留进度，重新开始）
+        await db.collection('user_habits')
+          .doc(user_habit_id)
+          .update({
+            data: {
+              status: 'in_progress',
+              updated_at: now
+            }
+          });
+        return {
+          code: 0,
+          message: '已恢复'
         };
 
       case 'update':

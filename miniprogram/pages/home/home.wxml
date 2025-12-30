@@ -18,6 +18,53 @@
     </view>
   </view>
 
+  <!-- P0: 周期计时器卡片 -->
+  <view class="cycle-timer-card" wx:if="{{!loading && !loadError && habits.length > 0}}">
+    <view class="cycle-header">
+      <view class="cycle-title">📅 21天周期进度</view>
+      <view class="cycle-badge {{cycleStatus}}" wx:if="{{cycleStatus === 'critical'}}">
+        即将完成！
+      </view>
+    </view>
+
+    <view class="cycle-main">
+      <view class="cycle-number">
+        <view class="current-day">{{currentCycleDay}}</view>
+        <view class="total-day">/21</view>
+      </view>
+      <view class="cycle-progress-container">
+        <view class="cycle-progress-bar">
+          <view class="cycle-progress-fill" style="width: {{cyclePercentage}}%;"></view>
+        </view>
+        <view class="cycle-percentage">{{cyclePercentage}}%</view>
+      </view>
+    </view>
+
+    <!-- 周期状态文案 -->
+    <view class="cycle-status-text">
+      <view wx:if="{{cycleStatus === 'early'}}">🌱 坚持下去，养成好习惯只需要21天！</view>
+      <view wx:elif="{{cycleStatus === 'middle'}}">🚀 进度过半，坚持就是胜利！</view>
+      <view wx:elif="{{cycleStatus === 'final'}}">💪 即将完成，再加油一下！</view>
+      <view wx:elif="{{cycleStatus === 'critical'}}">🎉 就差一点了，冲刺吧！</view>
+    </view>
+
+    <!-- 周期详情 -->
+    <view class="cycle-details">
+      <view class="detail-item">
+        <view class="detail-label">已坚持</view>
+        <view class="detail-value">{{currentCycleDay}} 天</view>
+      </view>
+      <view class="detail-item">
+        <view class="detail-label">剩余</view>
+        <view class="detail-value">{{21 - currentCycleDay}} 天</view>
+      </view>
+      <view class="detail-item">
+        <view class="detail-label">完成率</view>
+        <view class="detail-value">{{cyclePercentage}}%</view>
+      </view>
+    </view>
+  </view>
+
   <!-- 加载中 -->
   <view class="loading-state" wx:if="{{loading}}">
     <view class="spinner"></view>

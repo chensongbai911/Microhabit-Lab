@@ -1,4 +1,4 @@
-<!-- 数据&我页 - Day 6 结论优先 -->
+<!-- 数据&我页 - Day 6 结论优先 + 可视化增强 -->
 <view class="container">
   <view class="page-container">
     <!-- 主结论卡片 -->
@@ -26,6 +26,39 @@
       <!-- 建议文案 -->
       <view class="advice-box">
         <view class="advice-text">{{advice}}</view>
+      </view>
+    </view>
+
+    <!-- 📈 7天完成率趋势 -->
+    <view class="chart-card">
+      <view class="chart-title">📈 本周完成率趋势</view>
+      <view class="chart-container">
+        <view class="chart-bars">
+          <view class="bar-item" wx:for="{{weeklyData}}" wx:key="index">
+            <view class="bar-bar" style="height: {{item * 2}}rpx;"></view>
+            <view class="bar-label">{{weekDays[index]}}</view>
+            <view class="bar-value">{{item}}%</view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 🏆 本周最佳习惯排行 -->
+    <view class="ranking-card">
+      <view class="ranking-title">🏆 完成率排行</view>
+      <view class="ranking-list" wx:if="{{topHabits.length > 0}}">
+        <view class="ranking-item" wx:for="{{topHabits}}" wx:key="name">
+          <view class="medal-emoji">{{item.medal}}</view>
+          <view class="ranking-content">
+            <view class="ranking-name">{{item.name}}</view>
+            <view class="ranking-rate">{{item.completion_rate || 0}}% 完成率</view>
+          </view>
+          <view class="ranking-badge">Top {{item.rank}}</view>
+        </view>
+      </view>
+      <view class="ranking-empty" wx:if="{{topHabits.length === 0}}">
+        <view class="ranking-empty-icon">📊</view>
+        <view class="ranking-empty-text">暂无习惯数据，开始创建吧！</view>
       </view>
     </view>
 
@@ -65,3 +98,4 @@
     </view>
   </view>
 </view>
+

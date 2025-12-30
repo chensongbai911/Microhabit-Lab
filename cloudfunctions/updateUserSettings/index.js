@@ -8,7 +8,7 @@ const db = cloud.database();
  */
 exports.main = async (event, context) => {
   const { OPENID } = cloud.getWXContext();
-  const { reminder_settings } = event;
+  const { reminder_settings, app_settings } = event;
 
   try {
     // 查找用户记录
@@ -38,6 +38,10 @@ exports.main = async (event, context) => {
       if (reminder_settings.enabled) {
         updateData.last_subscribe_time = db.serverDate();
       }
+    }
+
+    if (app_settings) {
+      updateData.app_settings = app_settings;
     }
 
     await db.collection('users')
