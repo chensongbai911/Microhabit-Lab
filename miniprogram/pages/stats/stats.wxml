@@ -78,6 +78,16 @@
       </view>
     </view>
 
+    <!-- 订阅消息测试 -->
+    <view class="subscribe-card">
+      <view class="subscribe-title">📨 专注习惯完成通知</view>
+      <view class="subscribe-desc">点击先授权，再发送一条测试消息到微信</view>
+      <view class="subscribe-actions">
+        <button class="sub-btn" size="mini" bindtap="handleSubscribe">授权订阅</button>
+        <button class="sub-btn primary" size="mini" bindtap="handleSendTest">发送测试</button>
+      </view>
+    </view>
+
     <!-- 错误提示 + 刷新 -->
     <view class="stats-error" wx:if="{{statsError}}">
       <text>{{statsError}}</text>

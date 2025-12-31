@@ -30,33 +30,34 @@ exports.main = async (event, context) => {
     // 获取今天日期 YYYY-MM-DD
     const today = new Date().toISOString().split('T')[0];
 
-    // 查询所有进行中的习惯，兼容 status 缺省/active，start_date 缺省
-    const statusCond = _.or([
-      { status: 'in_progress' },
-      { status: 'active' },
-      { status: _.exists(false) }
-    ]);
-    const startCond = _.or([
-      { start_date: _.lte(today) },
-      { start_date: _.exists(false) }
-    ]);
-
+    // 查询所有进行中的习惯（简化查询，避免复杂 or 导致错误）
     const { data: habits } = await db.collection('user_habits')
       .where({
-        _openid: openid,
-        status: statusCond,
-        start_date: startCond
+        _openid: openid
       })
-      .orderBy('created_at', 'asc')
+      // 某些历史记录缺少 created_at，避免 orderBy 报错，改为不排序
       .get();
 
-    // 检查哪些习惯周期已结束
+    // 过滤：只保留进行中的习惯（status 为 in_progress/active 或缺省）
+    const filteredHabits = habits.filter(h => {
+      const status = h.status || 'in_progress';
+      return status === 'in_progress' || status === 'active';
+    });
+
+    // 检查哪些习惯周期已结束，并补充默认值
     const endedHabits = [];
     const activeHabits = [];
 
-    for (let habit of habits) {
+    for (let habit of filteredHabits) {
       const startDate = normalizeDate(habit.start_date, habit.created_at, today);
-      const endDate = calculateEndDate(startDate, habit.cycle_days);
+      const cycleDays = Number(habit.cycle_days) > 0 ? Number(habit.cycle_days) : 21;
+      const targetPerDay = Number(habit.target_times_per_day) > 0 ? Number(habit.target_times_per_day) : 1;
+      const endDate = calculateEndDate(startDate, cycleDays);
+
+      // 将归一化后的关键字段写回，便于后续使用
+      habit.start_date = startDate;
+      habit.cycle_days = cycleDays;
+      habit.target_times_per_day = targetPerDay;
 
       if (today > endDate) {
         // 周期已结束
@@ -73,6 +74,10 @@ exports.main = async (event, context) => {
     // 为活跃习惯查询今日打卡记录和 streak
     let completedCount = 0;
     for (let habit of activeHabits) {
+      const startDate = habit.start_date || normalizeDate(habit.start_date, habit.created_at, today);
+      const cycleDays = Number(habit.cycle_days) > 0 ? Number(habit.cycle_days) : 21;
+      const targetPerDay = Number(habit.target_times_per_day) > 0 ? Number(habit.target_times_per_day) : 1;
+
       const { data: logs } = await db.collection('habit_logs')
         .where({
           user_habit_id: habit._id,
@@ -80,8 +85,8 @@ exports.main = async (event, context) => {
         })
         .get();
 
-      const doneTimesToday = logs.length > 0 ? logs[0].times : 0;
-      const isCompleted = doneTimesToday >= habit.target_times_per_day;
+      const doneTimesToday = logs.length > 0 ? Number(logs[0].times || 0) : 0;
+      const isCompleted = doneTimesToday >= targetPerDay;
 
       // 计算 streak
       const streak = await calculateStreak(db, habit._id);
@@ -90,6 +95,8 @@ exports.main = async (event, context) => {
       const daysPassed = getDaysBetween(startDate, today) + 1;
 
       habit.start_date = startDate;
+      habit.cycle_days = cycleDays;
+      habit.target_times_per_day = targetPerDay;
 
       habit.habitId = habit._id;  // 前端可能期望用 habitId
       habit.doneTimesToday = doneTimesToday;
@@ -109,7 +116,8 @@ exports.main = async (event, context) => {
     return response.success(
       {
         habits: activeHabits,
-        endedHabits: endedHabits,
+        endedHabits: endedHabits,      // 兼容旧字段
+        ended_habits: endedHabits,     // 前端新字段
         completedCount: completedCount,   // 新增：直接返回，不让前端算
         totalCount: totalCount,            // 新增
         progress: progress,                // 新增

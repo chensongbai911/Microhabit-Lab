@@ -1,5 +1,6 @@
 // pages/stats/stats.js
 const permission = require('../../utils/permission.js');
+const tmplId = 'FU13oXF--gvie10WCk7CQ9odtVTHNOjg16j_g65XKOI';
 
 Page({
   data: {
@@ -138,5 +139,45 @@ Page({
     wx.navigateTo({
       url: '/pages/settings/settings'
     });
+  },
+
+  async handleSubscribe () {
+    try {
+      const res = await wx.requestSubscribeMessage({ tmplIds: [tmplId] });
+      if (res[tmplId] === 'accept') {
+        wx.showToast({ title: '已授权', icon: 'success' });
+      } else {
+        wx.showToast({ title: '已拒绝或关闭', icon: 'none' });
+      }
+    } catch (e) {
+      console.error('subscribe fail', e);
+      wx.showToast({ title: '订阅失败', icon: 'none' });
+    }
+  },
+
+  async handleSendTest () {
+    try {
+      wx.showLoading({ title: '发送中...', mask: true });
+      const res = await wx.cloud.callFunction({
+        name: 'sendSubscribeMessage',
+        data: {
+          thing1: '25 分钟',
+          thing2: '3 次',
+          time3: '',
+          thing4: '番茄钟专注'
+        }
+      });
+      wx.hideLoading();
+      if (res.result && res.result.code === 0) {
+        wx.showToast({ title: '已发送', icon: 'success' });
+      } else {
+        const msg = res.result?.message || '发送失败';
+        wx.showToast({ title: msg, icon: 'none' });
+      }
+    } catch (e) {
+      wx.hideLoading();
+      console.error('send test fail', e);
+      wx.showToast({ title: '发送失败', icon: 'none' });
+    }
   }
 });
